@@ -1,0 +1,153 @@
+'''ДАННЫЙ МОДУЛЬ НАПРАВЛЕН ТОЛЬКО НА ПЕРЕМЕЩЕНИЕ БЛОКОВ ПОСЛЕ ИХ ПОСТРОЕНИЯ НА МОДЕЛСПЕЙСЕ'''
+
+import ezdxf
+
+from src.dxf_creating import search_len_block,shell_create,CONST
+
+def move_shells_after_inputs(doc,shell_name:str):
+    '''Перемещение оболочек после вставки вводов на оболочки, но еще не поставили инпутс на топсайд
+    doc: doc после вставки inputs
+    shell_name: VP.161610
+    '''
+    sides = ['_upside','_downside','_rightside','_leftside']
+    #Сначала получаем все имена инпутс
+    names_inputs_with_ex = list() #Т.к. имена в блоках VZ-N25_exe, а нужно _withoutcapside
+
+    for shell_side in sides:
+        for block_entities in doc.blocks[shell_name + shell_side]:
+            if block_entities.dxftype() == 'INSERT':
+                if '_exe' or '_exd' in block_entities.dxf.name:
+                    names_inputs_with_ex.append(block_entities.dxf.name.split('_')[0])
+    #Ищем максимальную длину кабельного ввода
+    inputs_max_len = search_len_block.define_max_length_input(
+                                                     doc = doc,
+                                                     list_inputs_name_after_translit= list(set(names_inputs_with_ex)))
+    #Отодвигаем все сайды оболочки на длину максимального кабельного ввода
+    for insert in doc.modelspace().query('INSERT'):
+        if '_rightside' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] - inputs_max_len, insert.dxf.insert[1])
+        if '_leftside' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] + inputs_max_len, insert.dxf.insert[1])
+        if '_downside' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] , insert.dxf.insert[1] + inputs_max_len)
+        if '_upside' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0], insert.dxf.insert[1] - inputs_max_len)
+        if '_cutside' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] + 2 * inputs_max_len, insert.dxf.insert[1])
+        if '_withoutcapside' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] + 3 * inputs_max_len, insert.dxf.insert[1])
+        if '_installation' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] + 3 * inputs_max_len, insert.dxf.insert[1]+inputs_max_len)
+        if 'DIN' in insert.dxf.name:
+            insert.dxf.insert = (insert.dxf.insert[0] + 3 * inputs_max_len, insert.dxf.insert[1])
+    return inputs_max_len
+
+
+def get_boundaries_drawing(doc, shell_name:str, input_max_len:round):
+    '''
+    Выдает координаты границ чертежа (x_max,x_min,y_max,y_min)
+    :param doc:doc после передвижения всех блоков
+    :param shell_name: VP.161610
+    :param input_max_len: 35.865
+    :return:{'x_left':x_min,....)
+    '''
+    rightside_insert = [insert for insert in doc.modelspace().query(f'INSERT[name == "{shell_name}_rightside"]')][0]
+    upside_insert = [insert for insert in doc.modelspace().query(f'INSERT[name == "{shell_name}_upside"]')][0]
+    withoutcapside_insert = [insert for insert in doc.modelspace().query(f'INSERT[name == "{shell_name}_withoutcapside"]')][0]
+
+    x_min = shell_create.define_extreme_lines_in_insert(rightside_insert)['x_min']
+    y_min = shell_create.define_extreme_lines_in_insert(upside_insert)['y_min']
+
+    x_max = shell_create.define_extreme_lines_in_insert(withoutcapside_insert)['x_max'] + input_max_len
+    y_max = None
+
+    for insert_installation in doc.modelspace().query(f'INSERT[name=="{shell_name}_installation_dimensions"]'):
+        for mtext in insert_installation.virtual_entities():
+            if mtext.dxftype() == 'MTEXT':
+                y_max = mtext.dxf.insert[1]
+
+    return {'x_left':x_min,'x_right':x_max,'y_down':y_min,'y_up':y_max}
+
+
+def define_scale(doc,shell_name:str,input_max_len:round, boundaries:dict = CONST.A3_BOUNDARIES):
+    '''
+    Определяем масштаб, который необходим для вписывания оболочек в рамку, по дефолту в рамку А3.
+    Условия для проверки прописаны в NOTION,
+    ВСЕ ОНИ ДОЛЖНЫ СОБЛЮДАТЬСЯ:
+    [len1 + len3 + 2 * len2 <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
+                          len4 + len2 >= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                          len2 + len5 + len2 + len_mtext <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                          len1 + len2 + len3 + len2 + len1 + len2 + len1 + len2 + len3 + len2 <= boundaries[
+                              'LEN_X_ВЕРХНЯЯ_ГРАНИЦА']]
+    :param doc: doc, после того как все подвинули
+    :param shell_name: VP.161610
+    :param input_max_len: 35.865
+    :param boundaries: {'LEN_X_НИЖНЯЯ_ГРАНИЦА': 210,'LEN_Y_НИЖНЯЯ_ГРАНИЦА': 287,'LEN_X_ВЕРХНЯЯ_ГРАНИЦА': 395,
+                        'LEN_Y_ВЕРХНЯЯ_ГРАНИЦА': 232}
+    :return: 2.5
+    '''
+
+    rightside_insert = [insert for insert in doc.modelspace().query(f'INSERT[name == "{shell_name}_rightside"]')][0]
+
+    len1= shell_create.define_extreme_lines_in_insert(rightside_insert)['x_max'] - \
+          shell_create.define_extreme_lines_in_insert(rightside_insert)['x_min']
+
+    len2 = input_max_len
+
+    topside_insert = [insert for insert in doc.modelspace().query(f'INSERT[name == "{shell_name}_topside"]')][0]
+
+    len3 = shell_create.define_extreme_lines_in_insert(topside_insert)['x_max'] - \
+          shell_create.define_extreme_lines_in_insert(topside_insert)['x_min']
+
+    len4 = len1
+
+    len5 = shell_create.define_extreme_lines_in_insert(topside_insert)['y_max'] - \
+          shell_create.define_extreme_lines_in_insert(topside_insert)['y_min']
+
+    installation_insert = [insert for insert in doc.modelspace().query(f'INSERT[name == "{shell_name}_installation_dimensions"]')][0]
+
+    len_mtext = [mtext.dxf.insert for mtext in installation_insert.virtual_entities() if mtext.dxftype() == 'MTEXT'][0][1] -\
+                shell_create.define_extreme_lines_in_insert(installation_insert)['y_min']
+
+    conditions = all([len1 + len3 + 2*len2 <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
+                      len4 + len2 >= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                      len2 + len5 + len2 +len_mtext <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                      len1+len2+len3+len2+len1+len2+len1+len2+len3+len2 <= boundaries['LEN_X_ВЕРХНЯЯ_ГРАНИЦА']])
+    i = -1
+    while conditions == False:
+        i += 1
+
+        conditions = \
+            all([len1/(CONST.SCALE_GOST[i]) + len3/(CONST.SCALE_GOST[i]) + 2 * len2/(CONST.SCALE_GOST[i])
+                 <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
+
+                 len4/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 <= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+
+                 len2/(CONST.SCALE_GOST[i]) + len5/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len_mtext/(CONST.SCALE_GOST[i])
+                 <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+
+                 len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len3/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 + len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 + len3/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 <= boundaries['LEN_X_ВЕРХНЯЯ_ГРАНИЦА']])
+    if i == -1:
+        return 1
+    else:
+        return CONST.SCALE_GOST[i]
+
+def scale_all_insert(doc, scale):
+    '''
+    Устанавливаем расчитаный масштаб
+    :param doc: Док после вставки всех insertov!!!!
+    :param scale: 2.5
+    :return: doc
+    '''
+    for entity_insert in doc.modelspace().query('INSERT'):
+        entity_insert.scale_uniform(1/scale)
+    return doc
+
+
+
+
+
