@@ -35,7 +35,7 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.siteASpinBox.setValue(2)
         self.siteBSpinBox.setValue(1)
         self.siteVSpinBox.setValue(2)
-        self.test_write()
+        # self.test_write()
 
     def create_shell_dxf_after_selfkey(self):
         '''Создание dxf оболочки'''

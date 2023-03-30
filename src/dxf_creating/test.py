@@ -85,14 +85,27 @@ def calculate_vertical_len_block(block):
     vertical_len = abs(max(dict_with_horizontal_lines.keys()) - min(dict_with_horizontal_lines.keys()))
     return vertical_len
 
-
 if __name__ == '__main__':
     doc = ezdxf.readfile('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf')
     msp = doc.modelspace()
+    for i in doc.blocks:
+        print(i.block)
+        print(i.block.dxf.flags)
+        # print(i.dxftype())
+        # print(i.dxf.flags)
 
-    for block in doc.blocks:
-        if '*' not in block.dxf.name and 'VZ-N' in block.dxf.name:
-            print(block.dxf.name)
-            print(calculate_horizontal_len_block(block))
-            print(calculate_vertical_len_block(block=block))
+
+            # print(msp.get_bbox(block_entities))
+
+
+    for entity in msp:
+        if entity.dxftype() == 'INSERT':
+            print(entity.extents)
+
+
+    # for block in doc.blocks:
+    #     if '*' not in block.dxf.name and 'VZ-N' in block.dxf.name:
+    #         print(block.dxf.name)
+    #         print(calculate_horizontal_len_block(block))
+    #         print(calculate_vertical_len_block(block=block))
 
