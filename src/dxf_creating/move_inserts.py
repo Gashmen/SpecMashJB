@@ -25,13 +25,13 @@ def move_shells_after_inputs(doc,shell_name:str):
     #Отодвигаем все сайды оболочки на длину максимального кабельного ввода
     for insert in doc.modelspace().query('INSERT'):
         if '_rightside' in insert.dxf.name:
-            insert.dxf.insert = (insert.dxf.insert[0] - inputs_max_len, insert.dxf.insert[1])
+            insert.dxf.insert = (insert.dxf.insert[0] - 2*inputs_max_len, insert.dxf.insert[1])
         if '_leftside' in insert.dxf.name:
             insert.dxf.insert = (insert.dxf.insert[0] + inputs_max_len, insert.dxf.insert[1])
         if '_downside' in insert.dxf.name:
             insert.dxf.insert = (insert.dxf.insert[0] , insert.dxf.insert[1] + inputs_max_len)
         if '_upside' in insert.dxf.name:
-            insert.dxf.insert = (insert.dxf.insert[0], insert.dxf.insert[1] - inputs_max_len)
+            insert.dxf.insert = (insert.dxf.insert[0], insert.dxf.insert[1] - 2*inputs_max_len)
         if '_cutside' in insert.dxf.name:
             insert.dxf.insert = (insert.dxf.insert[0] + 2 * inputs_max_len, insert.dxf.insert[1])
         if '_withoutcapside' in insert.dxf.name:

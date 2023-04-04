@@ -238,7 +238,6 @@ class ShellPageSetup(designer_ui.Mainver):
             self.using_temperatureWidget_shellpage.setEnabled(False)
             self.using_temperatureLabel_shellpage.setText(' ')
 
-
     def write_t_class_in_general_dict(self):
         '''Записываем в словарь данные по Т классу оболочки( в ее наименование 'Tag')'''
         if (self.maxtempLineedit_shellpage.isEnabled() and self.mintempLineEdit_shellpage.isEnabled()) and \
@@ -247,7 +246,6 @@ class ShellPageSetup(designer_ui.Mainver):
                     self.dict_full_name_shell_page['Tag'] = \
                         f'К{self.serialCombobox_shellpage.currentText()}.{self.sizeCombobox_shellpage.currentText()}'+\
                         f'({self.mintempLineEdit_shellpage.text()}...+{self.maxtempLineedit_shellpage.text()})'
-
 
     def create_shell_name_for_dxf_creating(self):
         '''Создание имени для построения после заполнения self.shell_key'''
@@ -260,13 +258,11 @@ class ShellPageSetup(designer_ui.Mainver):
                     self.sizeCombobox_shellpage.currentText()
                 self.shell_name = shell_name
 
-
     def define_blocks_name_shell_before_draw(self):
         '''Добавление в словарь self.list_for_save_blocks_before_draw информации '''
         if self.shell_key != None:
             self.dict_for_save_blocks_before_draw['shell'] = \
-                shell_create.create_list_for_draw_shell(shell_name=self.shell_name)
-
+                shell_create.get_list_for_draw_shell(shell_name=self.shell_name)
 
     def get_full_sizes_shell(self):
         '''Составление полного именни оболочки как например КВП.161610(-60...+60)'''
@@ -276,10 +272,6 @@ class ShellPageSetup(designer_ui.Mainver):
                                                    self.safefactortypeCombobox_shellpage.currentText()]
             for type_size in self.full_size_shell.keys():
                 self.full_size_shell[type_size] = maindict_manufacturer_extype[type_size][self.shell_key]
-
-    # def
-
-
 
 
 if __name__ == "__main__":

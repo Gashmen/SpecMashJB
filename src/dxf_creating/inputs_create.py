@@ -7,14 +7,12 @@ DICT-WITH-INPUTS
 'В': {0: {'ВЗ-Н20': [60.0, 37.5]}}, 'Г': {}, 'Крышка': {}}
 '''
 
-
 def define_shell_type(full_shell_name: str) -> str:
     '''
      :param full_shell_name: VA.161609
      :return: VA.161609
     '''
     return full_shell_name
-
 
 def define_matching(dict_with_inputs: dict, how_rotation='horizontal') -> dict[str:str]:
     '''
@@ -210,58 +208,3 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                                                                            list(inputs_insert.dxf.insert)[1]))
                     input_leftside_on_withoutcapside.dxf.rotation = 270
 
-
-def create_dimensions(doc,shell_name:str):
-    '''
-    Создает размеры
-    :param doc:
-    :param shell_name: VP.161610
-    :return:
-    '''
-
-    insert_topside = doc.modelspace().query(f'INSERT[name=="{shell_name}_topside"]')[0]
-    extreme_lines_topside = shell_create.define_extreme_lines_in_insert(insert_topside)
-
-    a_side_insert = list()
-    b_side_insert = list()
-    v_side_insert = list()
-    g_side_insert = list()
-
-    for insert_input in doc.modelspace().query('INSERT'):
-        if list(insert_input.dxf.insert)[1] == extreme_lines_topside['y_max']:
-            if extreme_lines_topside['x_min'] < list(insert_input.dxf.insert)[0] < extreme_lines_topside['x_max']:
-                v_side_insert.append(insert_input)
-
-        if list(insert_input.dxf.insert)[1] == extreme_lines_topside['y_min']:
-            if extreme_lines_topside['x_min'] < list(insert_input.dxf.insert)[0] < extreme_lines_topside['x_max']:
-                a_side_insert.append(insert_input)
-
-        if list(insert_input.dxf.insert)[0] == extreme_lines_topside['x_min']:
-            if extreme_lines_topside['y_min'] < list(insert_input.dxf.insert)[1] < extreme_lines_topside['y_max']:
-                g_side_insert.append(insert_input)
-
-        if list(insert_input.dxf.insert)[0] == extreme_lines_topside['x_max']:
-            if extreme_lines_topside['y_min'] < list(insert_input.dxf.insert)[1] < extreme_lines_topside['y_max']:
-                b_side_insert.append(insert_input)
-
-
-
-
-
-
-
-
-
-
-
-
-def check_coordinates_inputs_in_modelspace(doc, dict_before_match, full_shale_name):
-    '''
-     :param doc: doc после добавления вводов в оболочки
-     :param dict_before_match:
-     {'А': {0: {'ВЗ-Н20': [33.4, 37.5]}, 1: {'ВЗ-Н20': [86.6, 37.5]}},
-     'Б': {0: {'ВЗ-Н20': [49.0, 37.5]}},
-     'В': {0: {'ВЗ-Н20': [60.0, 37.5]}}, 'Г': {}, 'Крышка': {}}
-     :param full_shale_name: VP.161610
-     :return: doc
-     '''

@@ -47,7 +47,6 @@ def calculate_vertical_len_block(block):
     return vertical_len
 
 
-
 def calculate_horizontal_len_block(block):
     '''
     :param dict_with_horizontal_lines: словарь с линиями полученные после create_dict_with_horizontal
@@ -66,24 +65,22 @@ def calculate_horizontal_len_block(block):
 
             sum_of_all_lines_in_this_y += abs(round(line.dxf.end[0] - line.dxf.start[0], 2))
             if min_x_coord_on_this_horizontal_level_iteration == None and \
-                    max_x_coord_on_this_horizontal_level_iteration == None:
-                min_x_coord_on_this_horizontal_level_iteration = min(round(line.dxf.end[0], 2),
-                                                                     round(line.dxf.start[0], 2))
-                max_x_coord_on_this_horizontal_level_iteration = max(round(line.dxf.end[0], 2),
-                                                                     round(line.dxf.start[0], 2))
+                 max_x_coord_on_this_horizontal_level_iteration == None:
+                    min_x_coord_on_this_horizontal_level_iteration = min(round(line.dxf.end[0], 2),
+                                                                         round(line.dxf.start[0], 2))
+                    max_x_coord_on_this_horizontal_level_iteration = max(round(line.dxf.end[0], 2),
+                                                                         round(line.dxf.start[0], 2))
 
             else:
-                min_x_coord_on_this_horizontal_level_iteration = \
-                    min(min_x_coord_on_this_horizontal_level_iteration,
-                        min(round(line.dxf.end[0], 2), round(line.dxf.start[0], 2)))
-                max_x_coord_on_this_horizontal_level_iteration = \
-                    max(max_x_coord_on_this_horizontal_level_iteration,
-                        max(round(line.dxf.end[0], 2), round(line.dxf.start[0], 2)))
+                    min_x_coord_on_this_horizontal_level_iteration = \
+                        min(min_x_coord_on_this_horizontal_level_iteration,
+                            min(round(line.dxf.end[0], 2), round(line.dxf.start[0], 2)))
+                    max_x_coord_on_this_horizontal_level_iteration = \
+                        max(max_x_coord_on_this_horizontal_level_iteration,
+                            max(round(line.dxf.end[0], 2), round(line.dxf.start[0], 2)))
 
         max_sum.append(max_x_coord_on_this_horizontal_level_iteration - min_x_coord_on_this_horizontal_level_iteration)
     return round(max(max_sum),2)
-
-
 
 
 if __name__ == '__main__':

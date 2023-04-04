@@ -1,18 +1,4 @@
-
-def create_list_for_draw_shell(shell_name:str)->list[str]:
-    '''
-    Создает импорт лист для оболочки
-    :param shell_name: VP.161610
-    :return: return_list : [VP.161610_topside,...]
-    '''
-
-    sides = ('_downside','_upside','_leftside','_rightside','_topside','_cutside',
-             '_withoutcapside',
-             '_installation_dimensions')
-    shell_name_sides = [shell_name + side for side in sides]
-    shell_name_sides.append(f'DIN_{shell_name}')
-    return shell_name_sides
-
+'''ЧАСТЬ ПОИСКА КРАЙНИХ ЛИНИЙ В БЛОКАХ И ИНСЕРТАХ'''
 def define_extreme_lines_in_insert(insert):
     '''Поиск координат крайних точек по линиям на Modelspace
     :insert: Insert в моделспейсе
@@ -55,65 +41,178 @@ def define_extreme_lines_in_all_blocks(doc):
             return_dict[block.dxf.name] = define_extreme_lines_in_block(block)
     return return_dict
 
-def topside_insert(doc,shell_name):
-    '''Поиск INSERT topside'''
-    for insert_topside in doc.modelspace():
-        if insert_topside.dxf.name.endswith('topside') and shell_name in insert_topside.dxf.name:
-            return insert_topside
+'''Получаю список блоков, которые остануться после удаление из контейнера'''
+def get_list_for_draw_shell(shell_name:str)->list[str]:
+    '''
+    Создает импорт лист для оболочки
+    :param shell_name: VP.161610
+    :return: return_list : [VP.161610_topside,...]
+    '''
 
-def create_shell_sides(doc, shell_name,extreme_lines_in_all_blocks):
-    type_of_add_rotation = {'_downside': 0, '_upside': 180, '_leftside': 270, '_rightside': 90}
-    insert_topside = topside_insert(doc,shell_name)
-    topside_extreme_lines = define_extreme_lines_in_insert(insert_topside)
-    for type_of_add in type_of_add_rotation:
-        if type_of_add.endswith('_downside'):
-            insert_downside = (topside_extreme_lines['x_min'] - extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'],
-                                topside_extreme_lines['y_max'] - extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'])
-            add_downside = doc.modelspace().add_blockref(f'{shell_name}{type_of_add}',
-                                                         insert=insert_downside)
-            add_downside.dxf.rotation = 0
-        elif type_of_add.endswith('_upside'):
-            insert_upside = (topside_extreme_lines['x_max'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'],
-                                topside_extreme_lines['y_min'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'])
-            add_upside = doc.modelspace().add_blockref(f'{shell_name}{type_of_add}',
-                                                         insert=insert_upside)
-            add_upside.dxf.rotation = 180
-        elif type_of_add.endswith('_rightside'):
-            insert_rightside = (topside_extreme_lines['x_min'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'],
-                               topside_extreme_lines['y_min'] - extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'])
-            add_rightside = doc.modelspace().add_blockref(f'{shell_name}{type_of_add}',
-                                                        insert_rightside)
-            add_rightside.dxf.rotation = 90
-        elif type_of_add.endswith('_leftside'):
-            insert_leftside = (
-            topside_extreme_lines['x_max'] - extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'],
-            topside_extreme_lines['y_max'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'])
+    sides = ('_downside','_upside','_leftside','_rightside','_topside','_cutside',
+             '_withoutcapside',
+             '_installation_dimensions')
+    shell_name_sides = [shell_name + side for side in sides]
+    shell_name_sides.append(f'DIN_{shell_name}')
+    return shell_name_sides
 
-            add_leftside = doc.modelspace().add_blockref(f'{shell_name}{type_of_add}',
-                                                         insert_leftside)
-            add_leftside.dxf.rotation = 270
 
-def leftside_insert(doc,shell_name):
-    '''Поиск INSERT leftside'''
-    for insert_leftside in doc.modelspace():
-        if insert_leftside.dxf.name.endswith('leftside') and shell_name in insert_leftside.dxf.name:
-            return insert_leftside
+'''ВИДЖЕТ СОЗДАНИЕ ОБОЛОЧЕК'''
+def create_topside(doc,shell_name:str):
+    '''
+    Создает shell_topside в координатах 0,0
+    :param doc: пустой лист со вставленными импортами блоками
+    :param shell_name: VP.161610
+    :return: topside_insert вставленный на моделспейс
+    '''
+    if f'{shell_name}_topside' in [block.name for block in doc.blocks]:
+        topside_insert = doc.modelspace().add_blockref(name=f'{shell_name}_topside',
+                                                       insert=(0,0))
+        return topside_insert
+    else:
+        raise ValueError(f'Не был добавлен блок с именем {shell_name}_topside')
 
-def create_cutside_shell(doc, shell_name,extreme_lines_in_all_blocks):
+def calculate_extreme_lines_in_topside_insert(topside_insert):
+    '''
+    Расчет extreme_line insert у топсайд инсерт
+    :param topside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+
+    topside_insert_extreme_lines = define_extreme_lines_in_insert(topside_insert)
+    return topside_insert_extreme_lines
+
+def create_downside(doc,shell_name:str,extreme_line_all_blocks:dict,topside_extreme_lines:dict):
+    '''
+    Создает shell_downside в координатах
+    (topside_extreme_lines['x_min'] - extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'],
+    topside_extreme_lines['y_max'] - extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'])
+    :param doc: лист со вставленным topside
+    :param topside: VP.161610
+    :return: downside_insert вставленный на моделспейс
+    '''
+    downside_insert_coordinate = (topside_extreme_lines['x_min'] -
+                                  extreme_line_all_blocks[f'{shell_name}_downside']['x_min'],
+                                  topside_extreme_lines['y_max'] -
+                                  extreme_line_all_blocks[f'{shell_name}_downside']['y_min'])
+    downside_insert = doc.modelspace().add_blockref(name=f'{shell_name}_downside',
+                                                    insert=downside_insert_coordinate)
+    downside_insert.dxf.rotation = 0
+    return downside_insert
+
+def calculate_extreme_lines_in_downside_insert(downside_insert):
+    '''
+    Расчет extreme_line insert у топсайд инсерт
+    :param topside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+    downside_insert_extreme_lines = define_extreme_lines_in_insert(downside_insert)
+    return downside_insert_extreme_lines
+
+def create_upside(doc,shell_name:str,extreme_line_all_blocks:dict,topside_extreme_lines:dict):
+    '''
+    Создает shell_downside в координатах
+    (topside_extreme_lines['x_max'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'],
+    topside_extreme_lines['y_min'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'])
+    :param doc: лист со вставленным topside
+    :param topside: VP.161610
+    :return: downside_insert вставленный на моделспейс
+    '''
+    upside_insert_coordinate = (topside_extreme_lines['x_max'] +
+                                extreme_line_all_blocks[f'{shell_name}_upside']['x_min'],
+                                topside_extreme_lines['y_min'] +
+                                extreme_line_all_blocks[f'{shell_name}_upside']['y_min'])
+    upside_insert = doc.modelspace().add_blockref(name=f'{shell_name}_upside',
+                                                    insert=upside_insert_coordinate)
+    upside_insert.dxf.rotation = 180
+    return upside_insert
+
+def calculate_extreme_lines_in_upside_insert(upside_insert):
+    '''
+    Расчет extreme_line insert у upside инсерт
+    :param upside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+    upside_insert_extreme_lines = define_extreme_lines_in_insert(upside_insert)
+    return upside_insert_extreme_lines
+
+def create_leftside(doc,shell_name:str,extreme_line_all_blocks:dict,topside_extreme_lines:dict):
+    '''
+    Создает shell_downside в координатах
+    (topside_extreme_lines['x_max'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'],
+    topside_extreme_lines['y_min'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'])
+    :param doc: лист со вставленным topside
+    :param topside: VP.161610
+    :return: downside_insert вставленный на моделспейс
+    '''
+    leftside_insert_coordinate = (topside_extreme_lines['x_max'] -
+                                  extreme_line_all_blocks[f'{shell_name}_leftside']['y_min'],
+                                  topside_extreme_lines['y_max'] +
+                                  extreme_line_all_blocks[f'{shell_name}_leftside']['x_min'])
+    leftside_insert = doc.modelspace().add_blockref(name=f'{shell_name}_leftside',
+                                                    insert=leftside_insert_coordinate)
+    leftside_insert.dxf.rotation = 270
+    return leftside_insert
+
+def calculate_extreme_lines_in_leftside_insert(leftside_insert):
+    '''
+    Расчет extreme_line insert у upside инсерт
+    :param upside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+    leftside_insert_extreme_lines = define_extreme_lines_in_insert(leftside_insert)
+    return leftside_insert_extreme_lines
+
+def create_rightside(doc,shell_name:str,extreme_line_all_blocks:dict,topside_extreme_lines:dict):
+    '''
+    Создает shell_downside в координатах
+    (topside_extreme_lines['x_max'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['x_min'],
+    topside_extreme_lines['y_min'] + extreme_lines_in_all_blocks[f'{shell_name}{type_of_add}']['y_min'])
+    :param doc: лист со вставленным topside
+    :param topside: VP.161610
+    :return: downside_insert вставленный на моделспейс
+    '''
+    rightside_insert_coordinate = ((topside_extreme_lines['x_min'] +
+                                   extreme_line_all_blocks[f'{shell_name}_rightside']['y_min'],
+                                   topside_extreme_lines['y_min'] -
+                                   extreme_line_all_blocks[f'{shell_name}_rightside']['x_min'])
+)
+    rightside_insert = doc.modelspace().add_blockref(name=f'{shell_name}_rightside',
+                                                    insert=rightside_insert_coordinate)
+    rightside_insert.dxf.rotation = 90
+    return rightside_insert
+
+def calculate_extreme_lines_in_rightside_insert(rightside_insert):
+    '''
+    Расчет extreme_line insert у upside инсерт
+    :param upside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+    rightside_insert_extreme_lines = define_extreme_lines_in_insert(rightside_insert)
+    return rightside_insert_extreme_lines
+
+def create_cutside_shell(doc,shell_name:str,extreme_line_all_blocks:dict,leftside_extreme_lines:dict):
     '''Создает разрез справа'''
-    insert_leftside = leftside_insert(doc, shell_name)
-    leftside_extreme_lines = define_extreme_lines_in_insert(insert_leftside)
-    insert_x_coordinate_cutside =  leftside_extreme_lines['x_max'] - \
-                                   extreme_lines_in_all_blocks[f'{shell_name}_cutside']['y_min']
+    insert_x_coordinate_cutside = leftside_extreme_lines['x_max'] - \
+                                   extreme_line_all_blocks[f'{shell_name}_cutside']['y_min']
     insert_y_coordinate_cutside = leftside_extreme_lines['y_max'] + \
-                                   extreme_lines_in_all_blocks[f'{shell_name}_cutside']['x_min']
+                                   extreme_line_all_blocks[f'{shell_name}_cutside']['x_min']
 
     insert_cutside = doc.modelspace().add_blockref(name = f'{shell_name}_cutside',
                                                    insert = (insert_x_coordinate_cutside,insert_y_coordinate_cutside))
     insert_cutside.dxf.rotation = 270
     return insert_cutside
 
-def create_withoutcapside_shell(doc,shell_name:str,extreme_lines_in_all_blocks:dict):
+def calculate_extreme_lines_in_cutside_insert(cutside_insert):
+    '''
+    Расчет extreme_line insert у upside инсерт
+    :param upside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+    cutside_insert_extreme_lines = define_extreme_lines_in_insert(cutside_insert)
+    return cutside_insert_extreme_lines
+
+def create_withoutcapside_shell(doc,shell_name:str,extreme_line_in_all_blocks:dict,cutside_extreme_lines:dict):
     '''
     :param doc:
     :param shell_name: VP.161609
@@ -121,16 +220,23 @@ def create_withoutcapside_shell(doc,shell_name:str,extreme_lines_in_all_blocks:d
     :param cutside_insert: create_cutside_shell(doc, shell_name,extreme_lines_in_all_blocks)
     :return: withoutcapside_insert
     '''
-    cutside_insert = create_cutside_shell(doc,shell_name,extreme_lines_in_all_blocks)
-    extreme_lines_in_cutside_insert = define_extreme_lines_in_insert(cutside_insert)
-    x_coordinate_insert = extreme_lines_in_cutside_insert['x_max'] - \
-                          extreme_lines_in_all_blocks[f'{shell_name}_withoutcapside']['x_min']
-    y_coordinate_insert = extreme_lines_in_cutside_insert['y_max'] - \
-                          extreme_lines_in_all_blocks[f'{shell_name}_withoutcapside']['y_max']
+    x_coordinate_insert = cutside_extreme_lines['x_max'] - \
+                          extreme_line_in_all_blocks[f'{shell_name}_withoutcapside']['x_min']
+    y_coordinate_insert = cutside_extreme_lines['y_max'] - \
+                          extreme_line_in_all_blocks[f'{shell_name}_withoutcapside']['y_max']
 
     withoutcapside_insert = doc.modelspace().add_blockref(name = f'{shell_name}_withoutcapside',
                                                           insert = (x_coordinate_insert,y_coordinate_insert))
     return withoutcapside_insert
+
+def calculate_extreme_lines_in_withoutcapside_insert(withoutcapside_insert):
+    '''
+    Расчет extreme_line insert у upside инсерт
+    :param upside_insert: shell_name_topside
+    :return: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y), 'xy_0': x_0}
+    '''
+    withoutcapside_insert_extreme_lines = define_extreme_lines_in_insert(withoutcapside_insert)
+    return withoutcapside_insert_extreme_lines
 
 def create_installation_dimensions(doc,shell_name:str,extreme_lines_in_all_blocks:dict):
     '''
@@ -173,26 +279,11 @@ def create_din_reyka(doc,shell_name:str):
     '''
     withoutcapside_insert = doc.modelspace().query(f'INSERT[name == "{shell_name}_withoutcapside"]')[0]
     din_reyka = doc.modelspace().add_blockref(name=f'DIN_{shell_name}',
-                                                          insert= withoutcapside_insert.dxf.insert)
+                                              insert= withoutcapside_insert.dxf.insert)
     din_reyka.set_scale(1)
     return din_reyka
 
-def create_all_shells(doc,shell_name:str, extreme_lines:dict):
-    '''
-    :param doc:
-    :param shell_name:
-    :param extreme_lines: {имя блока: {'x_max':max(x), 'y_max': max(y), 'x_min':min(x), 'y_min':min(y)}
-    :return:
-    '''
-    msp = doc.modelspace()
-    msp.add_blockref(f'{shell_name}_topside',insert=(0,0))
-    all_blocks_extreme_lines = define_extreme_lines_in_all_blocks(doc)
-    create_shell_sides(doc, shell_name, all_blocks_extreme_lines)
-    create_cutside_shell(doc,shell_name, extreme_lines)
-    create_withoutcapside_shell(doc,shell_name,extreme_lines)
-    create_installation_dimensions(doc,shell_name,extreme_lines)
-    create_din_reyka(doc,shell_name)
-    return doc
+
 
 
 

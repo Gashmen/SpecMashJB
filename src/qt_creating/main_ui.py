@@ -8,6 +8,7 @@ from src.qt_creating import terminal_ui
 from src.dxf_changer import TERMINAL_DB
 from src.dxf_creating import import_module, shell_create, main_shell_create,terminal_create,inputs_create
 from src.dxf_creating import move_inserts
+from src.dxf_creating import dimension_create
 
 
 class DxfCreator(terminal_ui.TerminalPage):
@@ -29,13 +30,14 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_shell_dxf_after_selfkey)
         self.previewButton_leftMenu.clicked.connect(self.create_inputs_dxf_after_shell)
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
+        self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
 
         '''Для планшета ставлю значения спинбоксов заранее, т.к. не видно их и нет дизайнера тут'''
         self.siteASpinBox.setValue(2)
         self.siteBSpinBox.setValue(1)
         self.siteVSpinBox.setValue(2)
-        # self.test_write()
+        self.test_write()
 
     def create_shell_dxf_after_selfkey(self):
         '''Создание dxf оболочки'''
@@ -44,9 +46,71 @@ class DxfCreator(terminal_ui.TerminalPage):
                 self.doc_new = import_module.clear_base_doc_for_new(
                     dxfbase_path=self.path_to_dxf,
                     dict_for_save_blocks_before_draw=self.dict_for_save_blocks_before_draw)
-            shell_create.create_all_shells(doc=self.doc_new,
-                                           shell_name=self.shell_name,
-                                           extreme_lines=shell_create.define_extreme_lines_in_all_blocks(doc=self.doc_new))
+
+                self.extreme_lines_in_all_blocks = shell_create.define_extreme_lines_in_all_blocks(doc=self.doc_new)
+
+                self.topside_insert = \
+                    shell_create.create_topside(doc=self.doc_new,shell_name=self.shell_name)
+
+                self.topside_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_topside_insert(topside_insert=self.topside_insert)
+
+                self.downside_insert = \
+                    shell_create.create_downside(doc=self.doc_new,
+                                                 shell_name=self.shell_name,
+                                                 topside_extreme_lines=self.topside_insert_extreme_lines,
+                                                 extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                self.downside_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_downside_insert(downside_insert=self.downside_insert)
+
+                self.upside_insert = \
+                    shell_create.create_upside(doc=self.doc_new,
+                                               shell_name=self.shell_name,
+                                               topside_extreme_lines=self.topside_insert_extreme_lines,
+                                               extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                self.upside_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_upside_insert(upside_insert=self.upside_insert)
+
+                self.leftside_insert = \
+                    shell_create.create_leftside(doc=self.doc_new,
+                                                 shell_name=self.shell_name,
+                                                 topside_extreme_lines=self.topside_insert_extreme_lines,
+                                                 extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                self.leftside_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_leftside_insert(leftside_insert=self.leftside_insert)
+
+                self.rightside_insert = \
+                    shell_create.create_rightside(doc=self.doc_new,
+                                                  shell_name=self.shell_name,
+                                                  topside_extreme_lines=self.topside_insert_extreme_lines,
+                                                  extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                self.right_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_rightside_insert(rightside_insert=self.rightside_insert)
+
+                self.cutside_insert = \
+                    shell_create.create_cutside_shell(doc=self.doc_new,
+                                                      shell_name=self.shell_name,
+                                                      leftside_extreme_lines=self.leftside_insert_extreme_lines,
+                                                      extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                self.cutside_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_cutside_insert(cutside_insert=self.cutside_insert)
+
+                self.withoutcapside_insert = \
+                    shell_create.create_withoutcapside_shell(doc=self.doc_new,
+                                                             shell_name=self.shell_name,
+                                                             cutside_extreme_lines=self.cutside_insert_extreme_lines,
+                                                             extreme_line_in_all_blocks=self.extreme_lines_in_all_blocks)
+                self.withoutcapside_insert_extreme_lines = \
+                    shell_create.calculate_extreme_lines_in_withoutcapside_insert(withoutcapside_insert=self.withoutcapside_insert)
+
+                self.installation_dimension_insert = \
+                    shell_create.create_installation_dimensions(doc=self.doc_new,
+                                                                shell_name=self.shell_name,
+                                                                extreme_lines_in_all_blocks=self.extreme_lines_in_all_blocks)
+                self.din_insert = shell_create.create_din_reyka(doc=self.doc_new,
+                                                                shell_name=self.shell_name)
+
+
 
     def create_inputs_dxf_after_shell(self):
         '''Создание вводов на сторонах оболочки'''
@@ -76,6 +140,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                 inputs_create.create_inputs_on_topside_withoutcapside(doc=self.doc_new,
                                                                       shell_name=self.shell_name)
 
+
+
     def create_terminals_dxf_after_DIN_REYKA(self):
         '''Добавление клемм на DIN рейку'''
         if hasattr(self,'doc_new'):
@@ -101,6 +167,44 @@ class DxfCreator(terminal_ui.TerminalPage):
 
             move_inserts.scale_all_insert(doc=self.doc_new,
                                           scale=self.scale_drawing)
+
+    def create_dimension(self):
+        '''Создаем размер'''
+
+        insert_topside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_topside"]')[0]
+        extreme_lines_topside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_topside)
+
+        insert_on_topside = dimension_create.define_inputs_on_topside(doc=self.doc_new,
+                                                                      shell_name=self.shell_name,
+                                                                      extreme_lines_topside_after_scale=extreme_lines_topside_after_scale)
+        point_for_horizontal_dimension = \
+            {'max_up': dimension_create.calculate_max_up_coordinate(
+                doc=self.doc_new,insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
+                topside_extreme_lines=extreme_lines_topside_after_scale),
+             'min_down': dimension_create.calculate_min_down_coordinate(
+                 doc=self.doc_new, insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
+                 topside_extreme_lines=extreme_lines_topside_after_scale),
+             'min_left': dimension_create.calculate_min_left_coordinate(
+                 doc=self.doc_new, insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
+                 topside_extreme_lines=extreme_lines_topside_after_scale),
+             'max_right':dimension_create.calculate_max_right_coordinate(
+                 doc=self.doc_new, insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
+                 topside_extreme_lines=extreme_lines_topside_after_scale)}
+
+        dim = self.doc_new.modelspace().add_aligned_dim(
+            p1=point_for_horizontal_dimension['min_down'],
+            p2=point_for_horizontal_dimension['max_up'],
+            dimstyle='EZDXF',
+            distance=self.input_max_len)
+        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 2)}'
+
+        dim_horizontal = self.doc_new.modelspace().add_linear_dim(
+            base=(point_for_horizontal_dimension['max_right'][0],point_for_horizontal_dimension['min_left'][0]+10),
+            p1=point_for_horizontal_dimension['min_left'],
+            p2=point_for_horizontal_dimension['max_right'],
+            dimstyle='EZDXF')
+        dim_horizontal.dimension.dxf.text = f'{round(dim_horizontal.dimension.get_measurement() * 2, 2)}'
+
 
     def test_write(self):
         self.manufactureComboboxWidget_shellpage.setCurrentText('ВЗОР')

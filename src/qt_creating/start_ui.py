@@ -9,7 +9,6 @@ import help_ui
 import src.csv_reader.csv_reader as csv_reader
 from src.dxf_changer import TERMINAL_DB
 
-
 class ExtendedComboBox(QtWidgets.QComboBox):
     def __init__(self, parent=None):
         super(ExtendedComboBox, self).__init__(parent)
@@ -45,7 +44,6 @@ class ExtendedComboBox(QtWidgets.QComboBox):
         self.completer.setCompletionColumn(column)
         self.pFilterModel.setFilterKeyColumn(column)
         super(ExtendedComboBox, self).setModelColumn(column)
-
 
 class CustomFileDialogCsv(QtWidgets.QFileDialog):
     def __init__(self):
@@ -132,7 +130,6 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         '''Устанавливает 3 индекс у SHELL PAGE, если он не установлен'''
         if self.stackedWidget.count() != 3:
             self.stackedWidget.setCurrentIndex(3)
-
 
     def open_help_window(self):
         '''Открытие окна help'''
@@ -224,13 +221,11 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
                 self.manufactureComboboxWidget_shellpage.clear()
                 self.manufacturerInputsComboBox.clear()
 
-
     def get_csv_file(self):
         '''Определение пути до папки с базой CSV'''
         csv_path = self.csv_file_dialog.getExistingDirectory(self,
                                                              caption="Выбрать папку БД")
         self.create_main_dict_and_manufacturer_combobox(csv_path=csv_path)
-
 
 
 if __name__ == "__main__":
