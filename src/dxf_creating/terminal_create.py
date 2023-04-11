@@ -2,7 +2,7 @@ import ezdxf
 
 import src.dxf_creating.measure_block as measure_block
 import src.dxf_creating.shell_create as shell_create
-
+from src.dxf_creating import CONST
 
 def check_din_reyka(doc, shell_name:str):
     '''Проверка наличия дин рейки в doc
@@ -64,6 +64,9 @@ def create_list_for_drawing_terminal(list_with_terminal:list)->list[str]:
     :return: return_list : ['SUPU_SCREW_GREEN_16',...]
     '''
     list_for_import =[*list(set(list_with_terminal))]
+    for type_terminal in list_for_import.copy():
+        list_for_import.append(type_terminal + '_viewside')
+
 
     list_for_import.append('Terminal_end_stop_frontside')
     list_for_import.append('Terminal_end_stop_viewside')
@@ -159,6 +162,7 @@ def create_terminal_on_din(doc_after_import, list_terminal_blocks, din_reyka_ins
     y_first_coordinate = din_reyka_insert_coordinate[1]
 
 
+
     for terminal_name in list_terminal_blocks:
 
         len_terminal = define_len_terminal(doc_after_import,terminal_name)
@@ -169,14 +173,39 @@ def create_terminal_on_din(doc_after_import, list_terminal_blocks, din_reyka_ins
         x_first_coordinate += len_terminal
     return doc_after_import
 
+def create_terminal_on_cutside(doc_after_terminal, list_terminal_blocks:list[str], shell_name:str):
+    '''
+    Создать клеммы в разрезе
+    :param doc_after_terminal: doc, в котором добавили клеммы на withoutcapside
+    :param list_terminal_blocks: Значение с list_widget ['SUPU_Винтовые_PE_16','Концевая пластина',
+                                                        'Концевой стопор','SUPU_Винтовые_L_16' ]
+    :param shell_name: VP.161610
+    :return:
+    '''
 
+    cutside_insert = doc_after_terminal.modelspace().query(f'INSERT[name=="{shell_name}_cutside"]')[0]
 
+    coordinate_din_in_cutside = doc_after_terminal.blocks[
+                                   f'{shell_name}_cutside'].query('INSERT[name=="35_DIN_CUTSIDE"]')[0].dxf.insert
 
+    for terminal in list_terminal_blocks.copy()[::-1]:
+        if terminal != 'Terminal_end_plate_frontside_2.5':
+            if terminal != 'Terminal_end_stop_frontside':
 
-
-
-
-
+                doc_after_terminal.modelspace().add_blockref(name=f'{terminal}_viewside',
+                                                            insert=(cutside_insert.dxf.insert[0] +
+                                                                    coordinate_din_in_cutside[1] + CONST.FROM_DIN_INSERT,
+                                                                    cutside_insert.dxf.insert[1] -
+                                                                    coordinate_din_in_cutside[0])
+                                                             )
+            else:
+                doc_after_terminal.modelspace().add_blockref(name="Terminal_end_stop_viewside",
+                                                             insert=(cutside_insert.dxf.insert[0] +
+                                                                     coordinate_din_in_cutside[1] + CONST.FROM_DIN_INSERT,
+                                                                     cutside_insert.dxf.insert[1] -
+                                                                     coordinate_din_in_cutside[0])
+                                                             )
+    return doc_after_terminal
 
 
 

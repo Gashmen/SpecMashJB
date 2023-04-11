@@ -89,7 +89,7 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.doc_new = None
 
         '''Словарь блоков, которые нужно оставить для рисования dxf {shell_name:[block_1,block_2...],...}'''
-        self.dict_for_save_blocks_before_draw = dict()
+        self.dict_for_save_blocks_before_draw = {'border':['Border_A3']}
 
         '''Если заранее задан путь csv'''
         self.create_main_dict_and_manufacturer_combobox(path_to_csv)

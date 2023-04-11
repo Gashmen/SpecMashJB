@@ -9,7 +9,7 @@ from src.dxf_changer import TERMINAL_DB
 from src.dxf_creating import import_module, shell_create, main_shell_create,terminal_create,inputs_create
 from src.dxf_creating import move_inserts
 from src.dxf_creating import dimension_create
-
+from src.dxf_creating import border_create
 
 class DxfCreator(terminal_ui.TerminalPage):
 
@@ -30,8 +30,10 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_shell_dxf_after_selfkey)
         self.previewButton_leftMenu.clicked.connect(self.create_inputs_dxf_after_shell)
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
+        self.previewButton_leftMenu.clicked.connect(self.create_border)
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
+
 
         '''Для планшета ставлю значения спинбоксов заранее, т.к. не видно их и нет дизайнера тут'''
         self.siteASpinBox.setValue(2)
@@ -110,8 +112,6 @@ class DxfCreator(terminal_ui.TerminalPage):
                 self.din_insert = shell_create.create_din_reyka(doc=self.doc_new,
                                                                 shell_name=self.shell_name)
 
-
-
     def create_inputs_dxf_after_shell(self):
         '''Создание вводов на сторонах оболочки'''
         if hasattr(self,'doc_new'):
@@ -141,7 +141,6 @@ class DxfCreator(terminal_ui.TerminalPage):
                                                                       shell_name=self.shell_name)
 
 
-
     def create_terminals_dxf_after_DIN_REYKA(self):
         '''Добавление клемм на DIN рейку'''
         if hasattr(self,'doc_new'):
@@ -161,6 +160,10 @@ class DxfCreator(terminal_ui.TerminalPage):
                         terminal_create.create_terminal_on_din(doc_after_import=self.doc_new,
                                                                list_terminal_blocks=list_with_terminals,
                                                                din_reyka_insert=din_reyka)
+
+                        terminal_create.create_terminal_on_cutside(doc_after_terminal=self.doc_new,
+                                                                   list_terminal_blocks=list_with_terminals,
+                                                                   shell_name=self.shell_name)
 
 
                     self.list_for_import_terminal = terminal_create.create_list_for_drawing_terminal(self.list_from_terminal_listwidget)
@@ -195,16 +198,33 @@ class DxfCreator(terminal_ui.TerminalPage):
             p1=point_for_horizontal_dimension['min_down'],
             p2=point_for_horizontal_dimension['max_up'],
             dimstyle='EZDXF',
-            distance=self.input_max_len)
+            distance=(extreme_lines_topside_after_scale['x_max']-extreme_lines_topside_after_scale['x_min'])/2 +
+                     (self.input_max_len/self.scale_drawing)/2
+                                                        )
         dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 2)}'
 
         dim_horizontal = self.doc_new.modelspace().add_linear_dim(
-            base=(point_for_horizontal_dimension['max_right'][0],point_for_horizontal_dimension['min_left'][0]+10),
+            base=(point_for_horizontal_dimension['max_right'][0],point_for_horizontal_dimension['min_left'][0]),
             p1=point_for_horizontal_dimension['min_left'],
             p2=point_for_horizontal_dimension['max_right'],
             dimstyle='EZDXF')
         dim_horizontal.dimension.dxf.text = f'{round(dim_horizontal.dimension.get_measurement() * 2, 2)}'
 
+    def create_border(self):
+        '''Создает рамку относительно '''
+        insert_rightside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_rightside"]')[0]
+        x_min = shell_create.define_extreme_lines_in_insert(insert=insert_rightside)['x_min']
+
+        insert_upside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_upside"]')[0]
+        y_min = shell_create.define_extreme_lines_in_insert(insert=insert_upside)['y_min']
+
+        border_create.create_border_A3(doc=self.doc_new,
+                                       x_min_rightside=x_min,
+                                       y_min_upside=y_min)
+
+        move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
+                                                               shell_name=self.shell_name,
+                                                               input_max_len=self.input_max_len/self.scale_drawing)
 
     def test_write(self):
         self.manufactureComboboxWidget_shellpage.setCurrentText('ВЗОР')

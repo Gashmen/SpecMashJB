@@ -5,8 +5,6 @@ from ezdxf.addons import Importer
 from src.dxf_creating import shell_create,inputs_create,inputs_on_shell
 
 
-
-
 def import_needed_block(importer, list_with_block_names):
     '''
     Импортирует необходимые блоки из контейнера по списку, полученному в другом месте

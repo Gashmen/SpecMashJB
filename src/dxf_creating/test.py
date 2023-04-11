@@ -1,27 +1,24 @@
 import ezdxf
+import CONST
+
+doc = ezdxf.readfile('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\DXF_BASE.dxf')
+
+coordinate_din_in_cutside = doc.blocks[f'VP.161610_cutside'].query('INSERT[name=="35_DIN_CUTSIDE"]')[0].dxf.insert
+
+cutside_insert = doc.modelspace().add_blockref(name='VP.161610_cutside',
+                              insert=(0,0))
+cutside_insert.dxf.rotation = 270
+
+doc.modelspace().add_blockref(name='SUPU_SCREW_BLUE_4_viewside',
+                              insert=(
+                                  cutside_insert.dxf.insert[0] + coordinate_din_in_cutside[1] + CONST.FROM_DIN_INSERT,
+                                  cutside_insert.dxf.insert[1] - coordinate_din_in_cutside[0])
+                              )
+doc.modelspace().add_blockref(name = 'Terminal_end_stop_viewside',
+                              insert=(cutside_insert.dxf.insert[0]+coordinate_din_in_cutside[1]+CONST.FROM_DIN_INSERT,
+                                      cutside_insert.dxf.insert[1]-coordinate_din_in_cutside[0])
+                              )
 
 
-
-from PyPDF2 import PdfFileReader
-
-
-# Открываем PDF файл в режиме чтения байтов
-with open('C:\\Users\\g.zubkov\\Downloads\\Telegram Desktop\\Ex_ia_2.pdf', 'rb') as pdf_file:
-    # Создаем объект PDFReader, чтобы читать PDF
-    pdf_reader = PdfFileReader(pdf_file)
-
-    # Получаем количество страниц в документе
-    num_pages = pdf_reader.numPages
-
-    # Цикл по страницам
-    for page in range(num_pages):
-        # Получаем объект страницы
-        pdf_page = pdf_reader.getPage(page)
-
-        # Получаем текст на странице и выводим его
-        print(pdf_page.extractText())
-
-# Закрываем файл
-pdf_file.close()
-
-
+doc.saveas('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\test.dxf')
+print(coordinate_din_in_cutside)
