@@ -176,7 +176,6 @@ def move_all_blocks_vertical_after_add_border(doc,shell_name:str,border_name='Bo
     withoutcap_insert = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')]
     withcap_insert = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withcap')]
 
-
     viewsides_insert = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('viewside')]
 
     CONST_Y_SHELL = None
