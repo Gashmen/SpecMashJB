@@ -6,14 +6,14 @@ import openpyxl
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
-from src.qt_creating import terminal_ui
+from src.qt_creating import options_ui
 from src.dxf_changer import TERMINAL_DB
 from src.dxf_creating import import_module, shell_create, main_shell_create,terminal_create,inputs_create
 from src.dxf_creating import move_inserts
 from src.dxf_creating import dimension_create
 from src.dxf_creating import border_create
 
-class DxfCreator(terminal_ui.TerminalPage):
+class DxfCreator(options_ui.OptionsPage):
 
     def __init__(self,
                  save_path = None,
@@ -27,14 +27,15 @@ class DxfCreator(terminal_ui.TerminalPage):
         super().__init__(save_path=save_path,
                          path_to_csv=path_to_csv,
                          path_to_dxf=path_to_dxf,
-                         path_to_terminal_dxf=path_to_terminal_dxf
-
+                         path_to_terminal_dxf=path_to_terminal_dxf,
+                         path_to_verification_xlsx = path_to_verification_xlsx
                          )
 
         self.previewButton_leftMenu.clicked.connect(self.create_shell_dxf_after_selfkey)
         self.previewButton_leftMenu.clicked.connect(self.create_inputs_dxf_after_shell)
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
         self.previewButton_leftMenu.clicked.connect(self.create_border)
+        self.previewButton_leftMenu.clicked.connect(self.write_attrib_border)
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
 
@@ -45,12 +46,6 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.siteVSpinBox.setValue(2)
         self.test_write()
 
-
-        '''Заполнение options'''
-        self.path_to_verification_xlsx = path_to_verification_xlsx
-        self.create_dict_for_verification()
-        self.write_rudes_name()
-        self.write_rudes_data()
 
     def create_shell_dxf_after_selfkey(self):
         '''Создание dxf оболочки'''
@@ -228,13 +223,25 @@ class DxfCreator(terminal_ui.TerminalPage):
         insert_upside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_upside"]')[0]
         y_min = shell_create.define_extreme_lines_in_insert(insert=insert_upside)['y_min']
 
-        border_create.create_border_A3(doc=self.doc_new,
-                                       x_min_rightside=x_min,
-                                       y_min_upside=y_min)
+        self.border_insert = border_create.create_border_A3(doc=self.doc_new,
+                                                            x_min_rightside=x_min,
+                                                            y_min_upside=y_min)
 
         move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len/self.scale_drawing)
+
+    def write_attrib_border(self):
+        '''Заполнение аттрибутов рамки'''
+        for attrib in self.border_insert.attribs:
+            border_create.write_RUTITLE_attrib(attrib_rutitle=attrib,
+                                               rutitle_text=self.rutitleLineEdit.text())
+            border_create.write_rudes(attrib_rudes=attrib,
+                                      rudes=self.rudesLineEdit.text())
+            border_create.write_scale(attrib_scale=attrib,
+                                      scale=f'1:{self.scale_drawing}')
+            border_create.write_rudesdata(attrib_rudesdata=attrib,
+                                          rudesdata=self.rudesdataLineEdit.text())
 
     def test_write(self):
         self.manufactureComboboxWidget_shellpage.setCurrentText('ВЗОР')
@@ -256,57 +263,15 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.conductorsection_terminal_combobox.setCurrentText('16')
         self.count_terminal_spinbox.setValue(3)
 
-    def create_dict_for_verification(self):
-        '''
-        Создает словарь для верификации, определяет имя и почту
-        :return:
-        '''
-        wb = openpyxl.load_workbook(self.path_to_verification)
-        ws = wb.active
-        self.dict_first_second_name = dict()
-        for cell in ws['F']:
-            if cell.value:
-                if '@' in cell.value:
-                    value = cell.value.split('@')[0]
-                    full_name = ws[f'B{cell.row}'].value
-                    first_name = full_name.split(' ')[0]
-                    second_name = full_name.split(' ')[1]
-                    third_name = None
-                    if len(full_name.split(' ')) >= 3:
-                        third_name = full_name.split(' ')[2]
-                    if third_name:
-                        self.dict_first_second_name[value] = first_name + f' {second_name[0]}.{third_name[0]}.'
-                    else:
-                        self.dict_first_second_name[value] = first_name + f' {second_name[0]}.'
-
-    def write_rudes_name(self):
-        '''
-        Записываем кто разработал
-        :return:
-        '''
-
-        computer_name_designer = os.getlogin()
-        if os.getlogin() != '' and os.getlogin() != 'admin':
-            self.rudesLineEdit.insert(self.dict_first_second_name[os.getlogin()])
-
-    def write_rudes_data(self):
-        '''
-        Записываем дату, когда разработал
-        :return:
-        '''
-        self.date_today = str(datetime.date.today())
-        self.rudesdataLineEdit.insert(f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}')
-
-
-
 if __name__ == '__main__':
     path_to_csv = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\bd'
     path_to_dxf_shell = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\dxf_base\\DXF_BASE.dxf'
     path_to_terminal_dxf = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\dxf_base\\DXF_BASE.dxf'
-
+    path_to_verification_xlsx = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\verification\\Сотрудники филиала+.xlsx'
     app = QtWidgets.QApplication(sys.argv)
     welcome_window = DxfCreator(path_to_csv=path_to_csv,
                                     path_to_dxf = path_to_dxf_shell,
-                                  path_to_terminal_dxf=path_to_terminal_dxf)
+                                  path_to_terminal_dxf=path_to_terminal_dxf,
+                                path_to_verification_xlsx=path_to_verification_xlsx)
     welcome_window.show()
     sys.exit(app.exec_())

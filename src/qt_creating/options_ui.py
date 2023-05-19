@@ -7,7 +7,7 @@ import sys
 
 from src.qt_creating import terminal_ui
 
-class DxfCreator(terminal_ui.TerminalPage):
+class OptionsPage(terminal_ui.TerminalPage):
 
     def __init__(self,
                  save_path = None,
@@ -23,6 +23,7 @@ class DxfCreator(terminal_ui.TerminalPage):
                          path_to_dxf=path_to_dxf,
                          path_to_terminal_dxf=path_to_terminal_dxf,
                          )
+
         self.path_to_verification_xlsx = path_to_verification_xlsx
 
         #Получение имени человека
@@ -30,13 +31,12 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.write_rudes_name()
         self.write_rudes_data()
 
-
     def create_dict_for_verification(self):
         '''
         Создает словарь для верификации, определяет имя и почту
         :return:
         '''
-        wb = openpyxl.load_workbook(self.path_to_verification)
+        wb = openpyxl.load_workbook(self.path_to_verification_xlsx)
         ws = wb.active
         self.dict_first_second_name = dict()
         for cell in ws['F']:
@@ -60,7 +60,6 @@ class DxfCreator(terminal_ui.TerminalPage):
         :return:
         '''
 
-        computer_name_designer = os.getlogin()
         if os.getlogin() != '' and os.getlogin() != 'admin':
             self.rudesLineEdit.insert(self.dict_first_second_name[os.getlogin()])
 
@@ -71,5 +70,8 @@ class DxfCreator(terminal_ui.TerminalPage):
         '''
         self.date_today = str(datetime.date.today())
         self.rudesdataLineEdit.insert(f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}')
+
+
+
 
 

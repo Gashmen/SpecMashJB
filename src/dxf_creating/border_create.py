@@ -24,7 +24,6 @@ def write_RUTITLE_attrib(attrib_rutitle, rutitle_text:str):
     :param rutitle_text: Значение str от rutitleLineEdit
     :return:
     '''
-
     if attrib_rutitle.dxf.tag == 'RUTITLE':
         if rutitle_text != None:
             if len(rutitle_text) <= 36:
@@ -89,8 +88,17 @@ def write_rudes(attrib_rudes, rudes:str):
     :param companylineedit_text: Значение str от companylineedit
     :return:
     '''
-    if attrib_rudes.dxf.tag == 'SCALE':
+    if attrib_rudes.dxf.tag == 'RUDES':
         if rudes != None:
                 attrib_rudes.dxf.text = rudes
 
-
+def write_rudesdata(attrib_rudesdata, rudesdata:str):
+    '''
+    Заполнение аттрибута scale
+    :param attrib_company: В цикле проверки аттрибутов передается аттрибут
+    :param companylineedit_text: Значение str от companylineedit
+    :return:
+    '''
+    if attrib_rudesdata.dxf.tag == 'RUDESDATA':
+        if rudesdata != None:
+                attrib_rudesdata.dxf.text = rudesdata

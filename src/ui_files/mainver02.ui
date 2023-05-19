@@ -1717,33 +1717,33 @@ background-color:#39737c;
                </widget>
               </item>
               <item>
-               <widget class="QWidget" name="widget_6" native="true">
+               <widget class="QWidget" name="rudesWidget" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_46">
                  <item>
-                  <widget class="QLabel" name="projecttitle4Label_7">
+                  <widget class="QLabel" name="rudesLabel">
                    <property name="text">
                     <string>RUDES</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="projecttitle4LineEdit_7"/>
+                  <widget class="QLineEdit" name="rudesLineEdit"/>
                  </item>
                 </layout>
                </widget>
               </item>
               <item>
-               <widget class="QWidget" name="widget" native="true">
+               <widget class="QWidget" name="rudesdataWidget" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_41">
                  <item>
-                  <widget class="QLabel" name="projecttitle4Label_2">
+                  <widget class="QLabel" name="rudesdataLabel">
                    <property name="text">
                     <string>RUDESDATA</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="projecttitle4LineEdit_2"/>
+                  <widget class="QLineEdit" name="rudesdataLineEdit"/>
                  </item>
                 </layout>
                </widget>
