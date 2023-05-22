@@ -198,15 +198,27 @@ class DxfCreator(options_ui.OptionsPage):
              'max_right':dimension_create.calculate_max_right_coordinate(
                  doc=self.doc_new, insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
                  topside_extreme_lines=extreme_lines_topside_after_scale)}
+        if self.input_max_len != 0:
+            dim = self.doc_new.modelspace().add_linear_dim(
+                base=(point_for_horizontal_dimension['min_left'][0]-self.input_max_len/3,
+                      point_for_horizontal_dimension['max_up'][0]),
+                p1=point_for_horizontal_dimension['min_down'],
+                p2=point_for_horizontal_dimension['max_up'],
+                angle=90,
+            )
+        else:
+            self.right_insert_extreme_lines = shell_create.calculate_extreme_lines_in_rightside_insert(
+                rightside_insert=self.doc_new.modelspace().query(f'INSERT[name == "{self.shell_name}_rightside"]')[0])
 
-        dim = self.doc_new.modelspace().add_aligned_dim(
-            p1=point_for_horizontal_dimension['min_down'],
-            p2=point_for_horizontal_dimension['max_up'],
-            dimstyle='EZDXF',
-            distance=(extreme_lines_topside_after_scale['x_max']-extreme_lines_topside_after_scale['x_min'])/2 +
-                     (self.input_max_len/self.scale_drawing)/2
-                                                        )
-        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 2)}'
+            dim = self.doc_new.modelspace().add_linear_dim(
+                base=(point_for_horizontal_dimension['min_left'][0] -
+                        (point_for_horizontal_dimension['min_left'][0] - self.right_insert_extreme_lines['x_max'])/2,
+                      point_for_horizontal_dimension['max_up'][0]),
+                p1=point_for_horizontal_dimension['min_down'],
+                p2=point_for_horizontal_dimension['max_up'],
+                angle=90,
+            )
+        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 0)}'
 
         dim_horizontal = self.doc_new.modelspace().add_linear_dim(
             base=(point_for_horizontal_dimension['max_right'][0],point_for_horizontal_dimension['min_left'][0]),
@@ -230,6 +242,7 @@ class DxfCreator(options_ui.OptionsPage):
         move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len/self.scale_drawing)
+
 
     def write_attrib_border(self):
         '''Заполнение аттрибутов рамки'''

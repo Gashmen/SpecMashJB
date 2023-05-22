@@ -347,6 +347,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         self.sideVListWidget.clear()
         self.sideGListWidget.clear()
         self.ComponentsListWidget.clear()
+        self.dict_with_inputs_on_side = {"А": [], "Б": [], 'В': [], "Г": [], "Крышка": []}
 
     def click_up_button_A(self):
         rowIndex = self.sideAListWidget.currentRow()
@@ -435,6 +436,8 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.dict_with_inputs_on_side["А"] = list_from_sideAListWidget
             self.dict_for_save_blocks_before_draw['inputs'] = \
                 inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
+        else:
+            self.dict_with_inputs_on_side["А"] = []
 
     def add_input_from_B_listwidget_to_dict(self):
         if self.sideBListWidget.count() != 0:
@@ -443,6 +446,8 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.dict_with_inputs_on_side["Б"] = list_from_sideBListWidget
             self.dict_for_save_blocks_before_draw['inputs'] = \
                 inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
+        else:
+            self.dict_with_inputs_on_side["Б"] = []
 
     def add_input_from_V_listwidget_to_dict(self):
         if self.sideVListWidget.count() != 0:
@@ -451,6 +456,8 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.dict_with_inputs_on_side["В"] = list_from_sideVListWidget
             self.dict_for_save_blocks_before_draw['inputs'] = \
                 inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
+        else:
+            self.dict_with_inputs_on_side["В"] = []
 
     def add_input_from_G_listwidget_to_dict(self):
         if self.sideGListWidget.count() != 0:
@@ -459,6 +466,8 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.dict_with_inputs_on_side["Г"] = list_from_sideGListWidget
             self.dict_for_save_blocks_before_draw['inputs'] = \
                 inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
+        else:
+            self.dict_with_inputs_on_side["Г"] = []
 
     def add_input_from_components_listwidget_to_dict(self):
         if self.ComponentsListWidget.count() != 0:
