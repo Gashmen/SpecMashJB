@@ -1,7 +1,5 @@
 '''ДАННЫЙ МОДУЛЬ НАПРАВЛЕН ТОЛЬКО НА ПЕРЕМЕЩЕНИЕ БЛОКОВ ПОСЛЕ ИХ ПОСТРОЕНИЯ НА МОДЕЛСПЕЙСЕ'''
 
-import ezdxf
-
 from src.dxf_creating import search_len_block,shell_create,CONST
 
 def move_shells_after_inputs(doc,shell_name:str):
@@ -110,7 +108,7 @@ def define_scale(doc,shell_name:str,input_max_len:round, boundaries:dict = CONST
                 shell_create.define_extreme_lines_in_insert(installation_insert)['y_min']
 
     conditions = all([len1 + len3 + 2*len2 <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
-                      len4 + len2 >= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                      len4 + len2 <= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
                       len2 + len5 + len2 +len_mtext <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
                       len1+len2+len3+len2+len1+len2+len1+len2+len3+len2 <= boundaries['LEN_X_ВЕРХНЯЯ_ГРАНИЦА']])
     i = -1

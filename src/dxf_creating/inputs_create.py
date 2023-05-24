@@ -161,7 +161,7 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
         for inputs_insert in doc.modelspace().query(f'INSERT[name == "{shell_name}{side}"]')[0].virtual_entities():
             if inputs_insert.dxftype() =='INSERT':
                 input_name = inputs_insert.dxf.name.split('_')[0]
-                if side == '_downside':
+                if side == '_upside':
                     input_downside_on_topside = doc.modelspace().add_blockref(
                                                                    name=input_name  + '_withoutcap',
                                                                    insert=(list(inputs_insert.dxf.insert)[0],
@@ -175,7 +175,7 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                     input_downside_on_withoutcapside.dxf.rotation = 180
 
 
-                elif side == '_upside':
+                elif side == '_downside':
                     input_upside_on_topside = doc.modelspace().add_blockref(name=input_name  + '_withoutcap',
                                                   insert=(list(inputs_insert.dxf.insert)[0],
                                                           topside_extreme_lines['y_min']))

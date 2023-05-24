@@ -143,6 +143,7 @@ class DxfCreator(options_ui.OptionsPage):
                 self.scale_drawing = move_inserts.define_scale(doc=self.doc_new,
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len)
+                # self.scale_drawing = 2.5
                 inputs_create.create_inputs_on_topside_withoutcapside(doc=self.doc_new,
                                                                       shell_name=self.shell_name)
 
@@ -239,10 +240,9 @@ class DxfCreator(options_ui.OptionsPage):
                                                             x_min_rightside=x_min,
                                                             y_min_upside=y_min)
 
-        move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
-                                                               shell_name=self.shell_name,
-                                                               input_max_len=self.input_max_len/self.scale_drawing)
-
+        # move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
+        #                                                        shell_name=self.shell_name,
+        #                                                        input_max_len=self.input_max_len/self.scale_drawing)
 
     def write_attrib_border(self):
         '''Заполнение аттрибутов рамки'''

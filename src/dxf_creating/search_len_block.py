@@ -22,6 +22,20 @@ def create_dict_with_horizontal_lines(block):
                     dict_with_horizontal_lines[round(entity.dxf.start[1], 2)].append(entity)
     return dict_with_horizontal_lines
 
+def create_dict_with_vertical_lines(block):
+    ''' Сначала создаем словарь в котором находится координата y вертикальных линий(ключ) и
+        линии на этой координате(значения) в списке. '''
+    dict_with_vertical_lines = dict()
+    for entity in block.entity_space:
+        if entity.dxftype() == 'LINE':
+            if round(entity.dxf.start[0], 2) == round(entity.dxf.end[0],2):
+                if round(entity.dxf.start[0], 2) not in dict_with_vertical_lines:
+                    dict_with_vertical_lines[round(entity.dxf.start[0], 2)] = [entity]
+                else:
+
+                    dict_with_vertical_lines[round(entity.dxf.start[0], 2)].append(entity)
+    return dict_with_vertical_lines
+
 def calculate_terminal_len(block):
     '''
     :param dict_with_horizontal_lines: словарь с линиями полученные после create_dict_with_horizontal
@@ -100,22 +114,6 @@ def define_max_length_input(doc,list_inputs_name_after_translit:list[str])->floa
 
 
 if __name__ == '__main__':
-    sum_terminal_len = 0
-    # doc_terminal = ezdxf.readfile('C:\\Users\g.zubkov\PycharmProjects\marshallingboxes\Клеммы\checkcheck.dxf')
-    doc_shell = ezdxf.readfile('C:\\Users\g.zubkov\PycharmProjects\marshallingboxes\Оболочка\Чертеж4.dxf')
-    for block in doc_shell.blocks:
-        if 'U28' in block.dxf.name:
-
-            print(block.dxf.name)
-            print(calculate_terminal_len(block=block))
-            # print(calculate_len_din(doc_new=doc_shell,shell_name=block.dxf.name.split('_')[1]))
-
-
-
-
-    # for block in doc_terminal.blocks:
-    #     if '*' not in block.dxf.name:
-    #         if len(block.dxf.name.split('_')) == 4:
-    #             sum_terminal_len += calculate_terminal_len(block=block)
-    # print(sum_terminal_len)
-
+    doc = ezdxf.readfile('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf')
+    block = doc.blocks['35_DIN_CUTSIDE']
+    print(max(create_dict_with_vertical_lines(block).keys()))

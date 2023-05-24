@@ -2,7 +2,7 @@ import ezdxf
 
 import src.dxf_creating.measure_block as measure_block
 import src.dxf_creating.shell_create as shell_create
-from src.dxf_creating import CONST
+from src.dxf_creating import CONST, search_len_block
 
 def check_din_reyka(doc, shell_name:str):
     '''Проверка наличия дин рейки в doc
@@ -135,8 +135,6 @@ def define_len_terminal(doc_after_import, terminal_name_in_doc:str)->float:
     return measure_block.calculate_horizontal_len_block(block=block_terminal)
 
 
-
-
 def calculate_sum_len_terminal(doc_after_import,list_with_terminal:list):
     '''Расчет суммарной длины клемм
     doc_after_import: doc, в который добавили уже и клеммы
@@ -183,6 +181,9 @@ def create_terminal_on_cutside(doc_after_terminal, list_terminal_blocks:list[str
     :return:
     '''
 
+    din_block = doc_after_terminal.blocks['35_DIN_CUTSIDE']
+    len_din = max(search_len_block.create_dict_with_vertical_lines(din_block).keys())
+
     cutside_insert = doc_after_terminal.modelspace().query(f'INSERT[name=="{shell_name}_cutside"]')[0]
 
     coordinate_din_in_cutside = doc_after_terminal.blocks[
@@ -194,14 +195,14 @@ def create_terminal_on_cutside(doc_after_terminal, list_terminal_blocks:list[str
 
                 doc_after_terminal.modelspace().add_blockref(name=f'{terminal}_viewside',
                                                             insert=(cutside_insert.dxf.insert[0] +
-                                                                    coordinate_din_in_cutside[1] + CONST.FROM_DIN_INSERT,
+                                                                    coordinate_din_in_cutside[1] + len_din,
                                                                     cutside_insert.dxf.insert[1] -
                                                                     coordinate_din_in_cutside[0])
                                                              )
             else:
                 doc_after_terminal.modelspace().add_blockref(name="Terminal_end_stop_viewside",
                                                              insert=(cutside_insert.dxf.insert[0] +
-                                                                     coordinate_din_in_cutside[1] + CONST.FROM_DIN_INSERT,
+                                                                     coordinate_din_in_cutside[1] + len_din,
                                                                      cutside_insert.dxf.insert[1] -
                                                                      coordinate_din_in_cutside[0])
                                                              )
