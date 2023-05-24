@@ -1,4 +1,5 @@
 '''ДАННЫЙ МОДУЛЬ НАПРАВЛЕН ТОЛЬКО НА ПЕРЕМЕЩЕНИЕ БЛОКОВ ПОСЛЕ ИХ ПОСТРОЕНИЯ НА МОДЕЛСПЕЙСЕ'''
+import math
 
 from src.dxf_creating import search_len_block,shell_create,CONST
 
@@ -107,27 +108,27 @@ def define_scale(doc,shell_name:str,input_max_len:round, boundaries:dict = CONST
     len_mtext = [mtext.dxf.insert for mtext in installation_insert.virtual_entities() if mtext.dxftype() == 'MTEXT'][0][1] -\
                 shell_create.define_extreme_lines_in_insert(installation_insert)['y_min']
 
-    conditions = all([len1 + len3 + 2*len2 <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
-                      len4 + len2 <= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
-                      len2 + len5 + len2 +len_mtext <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
-                      len1+len2+len3+len2+len1+len2+len1+len2+len3+len2 <= boundaries['LEN_X_ВЕРХНЯЯ_ГРАНИЦА']])
+    conditions = all([math.floor(len1 + len3 + 2*len2) <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
+                      math.floor(len4 + len2) <= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                      math.floor(len2 + len5 + len2 +len_mtext) <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
+                      math.floor(len1+len2+len3+len2+len1+len2+len1+len2+len3+len2) <= boundaries['LEN_X_ВЕРХНЯЯ_ГРАНИЦА']])
     i = -1
     while conditions == False:
         i += 1
 
         conditions = \
-            all([len1/(CONST.SCALE_GOST[i]) + len3/(CONST.SCALE_GOST[i]) + 2 * len2/(CONST.SCALE_GOST[i])
+            all([math.floor(len1/(CONST.SCALE_GOST[i]) + len3/(CONST.SCALE_GOST[i]) + 2 * len2/(CONST.SCALE_GOST[i]))
                  <= boundaries['LEN_X_НИЖНЯЯ_ГРАНИЦА'],
 
-                 len4/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 math.floor(len4/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]))
                  <= boundaries['LEN_Y_НИЖНЯЯ_ГРАНИЦА'] - boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
 
-                 len2/(CONST.SCALE_GOST[i]) + len5/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len_mtext/(CONST.SCALE_GOST[i])
+                 math.floor(len2/(CONST.SCALE_GOST[i]) + len5/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len_mtext/(CONST.SCALE_GOST[i]))
                  <= boundaries['LEN_Y_ВЕРХНЯЯ_ГРАНИЦА'],
 
-                 len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len3/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 math.floor(len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len3/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
                  + len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]) + len1/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
-                 + len3/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i])
+                 + len3/(CONST.SCALE_GOST[i]) + len2/(CONST.SCALE_GOST[i]))
                  <= boundaries['LEN_X_ВЕРХНЯЯ_ГРАНИЦА']])
     if i == -1:
         return 1
