@@ -176,7 +176,7 @@ def create_rightside(doc,shell_name:str,extreme_line_all_blocks:dict,topside_ext
                                    extreme_line_all_blocks[f'{shell_name}_rightside']['y_min'],
                                    topside_extreme_lines['y_min'] -
                                    extreme_line_all_blocks[f'{shell_name}_rightside']['x_min'])
-)
+                                    )
     rightside_insert = doc.modelspace().add_blockref(name=f'{shell_name}_rightside',
                                                     insert=rightside_insert_coordinate)
     rightside_insert.dxf.rotation = 90

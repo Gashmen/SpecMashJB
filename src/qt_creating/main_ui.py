@@ -68,6 +68,7 @@ class DxfCreator(options_ui.OptionsPage):
                                                  shell_name=self.shell_name,
                                                  topside_extreme_lines=self.topside_insert_extreme_lines,
                                                  extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+
                 self.downside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_downside_insert(downside_insert=self.downside_insert)
 
