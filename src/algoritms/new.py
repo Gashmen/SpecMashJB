@@ -34,9 +34,7 @@ def calculate_coordinates_for_inputs_in_one_row(x, y, dict_with_diametrs:list,al
                 coord_x[0] + distance_between_max_cord_and_shell_wall *((key+1)/(len(dict_with_added_diametrs_in_rectangle.keys())+1))
     return dict_with_added_diametrs_in_rectangle
 
-#['ВЗ-Н20', 'ВЗ-Н20', 'ВЗ-Н20', 'ВЗ-Н20']
 
-#Лист сверху передается нижнему по входит или не входит
 def create_levels(x, y, list_with_diametrs):
     dict_with_diametr_and_level = dict()
     min_size = min(x, y)
