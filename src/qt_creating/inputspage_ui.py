@@ -563,6 +563,8 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                             self.dict_with_list_coordinates_on_side_for_dxf[shell_side] = {}
             return self.dict_with_list_coordinates_on_side_for_dxf
 
+
+
     def define_blocks_name_inputs_before_draw(self):
         '''Определяем имена блоков для импорта для вводов кабельных'''
         if any(list(self.dict_with_inputs_on_side.values())):
