@@ -177,6 +177,22 @@ def return_inputs_dict_with_coordinate(sorted_list_diametr_russian:list, coordin
     return return_dict
 
 
+'''8'''
+def create_first_input(name_first_input:str, diametr_first_input:float, min_coordinate:float):
+    '''
+    Создать первый кабельный ввод
+    :param name_first_input: 'ВЗ-Н32'
+    :param diametr_first_input: 43.3
+    :param min_coordinate: это координата y - 96.6
+    :return: {'ВЗ-Н32': [43.3/2, 96.6 - (43.3)/2]}
+    '''
+
+    coordinate_y = min_coordinate
+
+    return {name_first_input:[(diametr_first_input/2), coordinate_y - (diametr_first_input/2)]}
+
+def define_free_space_after_input(dict_with_input_info:dict[])
+
 '''Удаление /Р в название'''
 def delete_extended_input(russian_input_name:str)->str:
     '''
@@ -221,7 +237,6 @@ def sort_list_diametr_russian(list_with_diametr_russian:list, dict_with_name_dia
     list_with_sorted_names = sorted(list_with_diametr_russian, key=lambda x:dict_with_name_diametr[x],reverse=True)
     return list_with_sorted_names
 
-''''''
 
 
 
