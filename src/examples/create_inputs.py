@@ -189,9 +189,36 @@ def create_first_input(name_first_input:str, diametr_first_input:float, min_coor
 
     coordinate_y = min_coordinate
 
-    return {name_first_input:[(diametr_first_input/2), coordinate_y - (diametr_first_input/2)]}
+    return {name_first_input:[(diametr_first_input/2), coordinate_y - (diametr_first_input/2)],
+            'diametr': diametr_first_input}
 
-def define_free_space_after_input(dict_with_input_info:dict[])
+
+def define_free_space_after_input(dict_with_input_info:dict, min_coordinate:float):
+    '''
+    Определение свободного места под кабельный ввод
+    :param dict_with_input_info: {name_first_input:[(diametr_first_input/2), coordinate_y - (diametr_first_input/2)],
+                                  'diametr': diametr_first_input}
+    :return: float свободное место под кабельным вводом
+    '''
+
+    return_value = min_coordinate - list(dict_with_input_info.values())[0][1] - dict_with_input_info['diametr']/2
+    return return_value
+
+def search_diametr_in_free_space(list_diametr_after_input:)
+
+def check_possible_diametr_underneath_input(free_space:float, diametr:float):
+    '''
+    Проверка поместится ли в свободное место окружность
+    :param free_space: свободное место под предыдущим кабельным вводом
+    :param diametr: диаметр данной окружности
+    :return:
+    '''
+
+    if free_space >= diametr:
+        return True
+    else:
+        return False
+
 
 '''Удаление /Р в название'''
 def delete_extended_input(russian_input_name:str)->str:
