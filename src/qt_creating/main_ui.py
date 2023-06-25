@@ -6,14 +6,14 @@ import openpyxl
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
-from src.qt_creating import options_ui
+from src.qt_creating import terminal_ui
 from src.dxf_changer import TERMINAL_DB
 from src.dxf_creating import import_module, shell_create, main_shell_create,terminal_create,inputs_create
 from src.dxf_creating import move_inserts
 from src.dxf_creating import dimension_create
 from src.dxf_creating import border_create
 
-class DxfCreator(options_ui.OptionsPage):
+class DxfCreator(terminal_ui.TerminalPage):
 
     def __init__(self,
                  save_path = None,
@@ -27,15 +27,13 @@ class DxfCreator(options_ui.OptionsPage):
         super().__init__(save_path=save_path,
                          path_to_csv=path_to_csv,
                          path_to_dxf=path_to_dxf,
-                         path_to_terminal_dxf=path_to_terminal_dxf,
-                         path_to_verification_xlsx = path_to_verification_xlsx
+                         path_to_terminal_dxf=path_to_terminal_dxf
                          )
 
         self.previewButton_leftMenu.clicked.connect(self.create_shell_dxf_after_selfkey)
         self.previewButton_leftMenu.clicked.connect(self.create_inputs_dxf_after_shell)
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
         self.previewButton_leftMenu.clicked.connect(self.create_border)
-        self.previewButton_leftMenu.clicked.connect(self.write_attrib_border)
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
 
@@ -46,6 +44,12 @@ class DxfCreator(options_ui.OptionsPage):
         self.siteVSpinBox.setValue(2)
         self.test_write()
 
+
+        '''Заполнение options'''
+        self.path_to_verification_xlsx = path_to_verification_xlsx
+        self.create_dict_for_verification()
+        self.write_rudes_name()
+        self.write_rudes_data()
 
     def create_shell_dxf_after_selfkey(self):
         '''Создание dxf оболочки'''
@@ -68,7 +72,6 @@ class DxfCreator(options_ui.OptionsPage):
                                                  shell_name=self.shell_name,
                                                  topside_extreme_lines=self.topside_insert_extreme_lines,
                                                  extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
-
                 self.downside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_downside_insert(downside_insert=self.downside_insert)
 
@@ -144,7 +147,6 @@ class DxfCreator(options_ui.OptionsPage):
                 self.scale_drawing = move_inserts.define_scale(doc=self.doc_new,
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len)
-                # self.scale_drawing = 2.5
                 inputs_create.create_inputs_on_topside_withoutcapside(doc=self.doc_new,
                                                                       shell_name=self.shell_name)
 
@@ -200,27 +202,15 @@ class DxfCreator(options_ui.OptionsPage):
              'max_right':dimension_create.calculate_max_right_coordinate(
                  doc=self.doc_new, insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
                  topside_extreme_lines=extreme_lines_topside_after_scale)}
-        if self.input_max_len != 0:
-            dim = self.doc_new.modelspace().add_linear_dim(
-                base=(point_for_horizontal_dimension['min_left'][0]-self.input_max_len/3,
-                      point_for_horizontal_dimension['max_up'][0]),
-                p1=point_for_horizontal_dimension['min_down'],
-                p2=point_for_horizontal_dimension['max_up'],
-                angle=90,
-            )
-        else:
-            self.right_insert_extreme_lines = shell_create.calculate_extreme_lines_in_rightside_insert(
-                rightside_insert=self.doc_new.modelspace().query(f'INSERT[name == "{self.shell_name}_rightside"]')[0])
 
-            dim = self.doc_new.modelspace().add_linear_dim(
-                base=(point_for_horizontal_dimension['min_left'][0] -
-                        (point_for_horizontal_dimension['min_left'][0] - self.right_insert_extreme_lines['x_max'])/2,
-                      point_for_horizontal_dimension['max_up'][0]),
-                p1=point_for_horizontal_dimension['min_down'],
-                p2=point_for_horizontal_dimension['max_up'],
-                angle=90,
-            )
-        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 0)}'
+        dim = self.doc_new.modelspace().add_aligned_dim(
+            p1=point_for_horizontal_dimension['min_down'],
+            p2=point_for_horizontal_dimension['max_up'],
+            dimstyle='EZDXF',
+            distance=(extreme_lines_topside_after_scale['x_max']-extreme_lines_topside_after_scale['x_min'])/2 +
+                     (self.input_max_len/self.scale_drawing)/2
+                                                        )
+        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 2)}'
 
         dim_horizontal = self.doc_new.modelspace().add_linear_dim(
             base=(point_for_horizontal_dimension['max_right'][0],point_for_horizontal_dimension['min_left'][0]),
@@ -237,25 +227,13 @@ class DxfCreator(options_ui.OptionsPage):
         insert_upside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_upside"]')[0]
         y_min = shell_create.define_extreme_lines_in_insert(insert=insert_upside)['y_min']
 
-        self.border_insert = border_create.create_border_A3(doc=self.doc_new,
-                                                            x_min_rightside=x_min,
-                                                            y_min_upside=y_min)
+        border_create.create_border_A3(doc=self.doc_new,
+                                       x_min_rightside=x_min,
+                                       y_min_upside=y_min)
 
         move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len/self.scale_drawing)
-
-    def write_attrib_border(self):
-        '''Заполнение аттрибутов рамки'''
-        for attrib in self.border_insert.attribs:
-            border_create.write_RUTITLE_attrib(attrib_rutitle=attrib,
-                                               rutitle_text=self.rutitleLineEdit.text())
-            border_create.write_rudes(attrib_rudes=attrib,
-                                      rudes=self.rudesLineEdit.text())
-            border_create.write_scale(attrib_scale=attrib,
-                                      scale=f'1:{self.scale_drawing}')
-            border_create.write_rudesdata(attrib_rudesdata=attrib,
-                                          rudesdata=self.rudesdataLineEdit.text())
 
     def test_write(self):
         self.manufactureComboboxWidget_shellpage.setCurrentText('ВЗОР')
@@ -277,15 +255,64 @@ class DxfCreator(options_ui.OptionsPage):
         self.conductorsection_terminal_combobox.setCurrentText('16')
         self.count_terminal_spinbox.setValue(3)
 
+    def create_dict_for_verification(self):
+        '''
+        Создает словарь для верификации, определяет имя и почту
+        :return:
+        '''
+        self.dict_first_second_name = dict()
+        if self.path_to_verification_xlsx !=None:
+            wb = openpyxl.load_workbook(self.path_to_verification)
+            ws = wb.active
+            for cell in ws['F']:
+                if cell.value:
+                    if '@' in cell.value:
+                        value = cell.value.split('@')[0]
+                        full_name = ws[f'B{cell.row}'].value
+                        first_name = full_name.split(' ')[0]
+                        second_name = full_name.split(' ')[1]
+                        third_name = None
+                        if len(full_name.split(' ')) >= 3:
+                            third_name = full_name.split(' ')[2]
+                        if third_name:
+                            self.dict_first_second_name[value] = first_name + f' {second_name[0]}.{third_name[0]}.'
+                        else:
+                            self.dict_first_second_name[value] = first_name + f' {second_name[0]}.'
+
+
+    def write_rudes_name(self):
+        '''
+        Записываем кто разработал
+        :return:
+        '''
+
+        computer_name_designer = os.getlogin()
+        if computer_name_designer != '' and computer_name_designer != 'admin':
+            if computer_name_designer in self.dict_first_second_name:
+                self.rudesLineEdit.insert(self.dict_first_second_name[computer_name_designer])
+            else:
+                self.rudesLineEdit.insert('nooffice')
+        else:
+            self.rudesLineEdit.insert('admin')
+
+    def write_rudes_data(self):
+        '''
+        Записываем дату, когда разработал
+        :return:
+        '''
+        self.date_today = str(datetime.date.today())
+        self.rudesdataLineEdit.insert(f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}')
+
+
+
 if __name__ == '__main__':
     path_to_csv = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\bd'
     path_to_dxf_shell = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\dxf_base\\DXF_BASE.dxf'
     path_to_terminal_dxf = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\dxf_base\\DXF_BASE.dxf'
-    path_to_verification_xlsx = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\verification\\Сотрудники филиала+.xlsx'
+
     app = QtWidgets.QApplication(sys.argv)
     welcome_window = DxfCreator(path_to_csv=path_to_csv,
                                     path_to_dxf = path_to_dxf_shell,
-                                  path_to_terminal_dxf=path_to_terminal_dxf,
-                                path_to_verification_xlsx=path_to_verification_xlsx)
+                                  path_to_terminal_dxf=path_to_terminal_dxf)
     welcome_window.show()
     sys.exit(app.exec_())
