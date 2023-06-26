@@ -4,10 +4,13 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
+from PyQt5.QtWidgets import QMessageBox
+
 import src.pyui_files.mainver02 as designer_ui
 import help_ui
 import src.csv_reader.csv_reader as csv_reader
 from src.dxf_changer import TERMINAL_DB
+
 
 class ExtendedComboBox(QtWidgets.QComboBox):
     def __init__(self, parent=None):
@@ -108,6 +111,8 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.optionsButton_leftMenu.clicked.connect(self.set_options_page)
 
         self.helpwindowButton.clicked.connect(self.open_help_window)
+
+        self.pushButton_2.clicked.connect(self.call_error)
 
 
     '''ИЗМЕНЕНИЕ СТРАНИЦ В SHELL PAGE'''
@@ -227,6 +232,8 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
                                                              caption="Выбрать папку БД")
         self.create_main_dict_and_manufacturer_combobox(csv_path=csv_path)
 
+    def call_error(self):
+        QMessageBox.critical(self, "Ошибка ", "Тестирование QMessageBox из call_error", QMessageBox.Ok)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

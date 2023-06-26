@@ -204,7 +204,7 @@ def define_free_space_after_input(dict_with_input_info:dict, min_coordinate:floa
     return_value = min_coordinate - list(dict_with_input_info.values())[0][1] - dict_with_input_info['diametr']/2
     return return_value
 
-def search_diametr_in_free_space(list_diametr_after_input:)
+# def search_diametr_in_free_space(list_diametr_after_input:)
 
 def check_possible_diametr_underneath_input(free_space:float, diametr:float):
     '''
