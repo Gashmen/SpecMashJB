@@ -12,11 +12,10 @@ def create_doc_BOM(dxfbase_path:str):
 
     blocks_BOM = ['BOM_FIRST','BOM_SECOND']
 
-    block_needed_for_draw = [block_name for i in blocks_BOM for block_name in i]
 
     for block in doc_dxfbase_for_del.blocks:
         try:
-            if block.dxf.name not in block_needed_for_draw and '*' not in block.dxf.name:
+            if block.dxf.name not in blocks_BOM and '*' not in block.dxf.name:
                     doc_bom.blocks.delete_block(name=block.dxf.name)
         except:
             continue
@@ -47,6 +46,7 @@ def create_shell_name(dict_name):
     :param dict_name:
     :return:
     '''
+    return None
 
 
 
@@ -84,3 +84,9 @@ def write_attrib(BOM_insert,dict_for_writing_attrib):
                 dict_name_attrib[f'E{row_start}'].dxf.text = dict_with_pozition[number_pozition]['Наименование'][27:]
 
     row_start+=1
+
+if __name__ == '__main__':
+    doc = create_doc_BOM('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\DXF_BASE.dxf')
+    create_BOM_FIRST(doc_bom=doc)
+    doc.saveas('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\test_BOM.dxf')
+    for 

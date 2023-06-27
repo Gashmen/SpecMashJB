@@ -90,6 +90,7 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.main_information = None #Переменная, куда сохраняется все.
         self.csv_file_dialog = CustomFileDialogCsv()
         self.doc_new = None
+        self.list_added_blocks = list()
 
         '''Словарь блоков, которые нужно оставить для рисования dxf {shell_name:[block_1,block_2...],...}'''
         self.dict_for_save_blocks_before_draw = {'border':['Border_A3']}

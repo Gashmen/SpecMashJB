@@ -38,6 +38,8 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
 
 
+
+
         '''Для планшета ставлю значения спинбоксов заранее, т.к. не видно их и нет дизайнера тут'''
         self.siteASpinBox.setValue(2)
         self.siteBSpinBox.setValue(1)
@@ -62,7 +64,9 @@ class DxfCreator(terminal_ui.TerminalPage):
                 self.extreme_lines_in_all_blocks = shell_create.define_extreme_lines_in_all_blocks(doc=self.doc_new)
 
                 self.topside_insert = \
-                    shell_create.create_topside(doc=self.doc_new,shell_name=self.shell_name)
+                    shell_create.create_topside(doc=self.doc_new,
+                                                shell_name=self.shell_name,
+                                                list_name_added=self.list_added_blocks)
 
                 self.topside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_topside_insert(topside_insert=self.topside_insert)
@@ -71,7 +75,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                     shell_create.create_downside(doc=self.doc_new,
                                                  shell_name=self.shell_name,
                                                  topside_extreme_lines=self.topside_insert_extreme_lines,
-                                                 extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                                                 extreme_line_all_blocks=self.extreme_lines_in_all_blocks,
+                                                 list_name_added=self.list_added_blocks)
                 self.downside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_downside_insert(downside_insert=self.downside_insert)
 
@@ -79,7 +84,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                     shell_create.create_upside(doc=self.doc_new,
                                                shell_name=self.shell_name,
                                                topside_extreme_lines=self.topside_insert_extreme_lines,
-                                               extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                                               extreme_line_all_blocks=self.extreme_lines_in_all_blocks,
+                                               list_name_added=self.list_added_blocks)
                 self.upside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_upside_insert(upside_insert=self.upside_insert)
 
@@ -87,7 +93,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                     shell_create.create_leftside(doc=self.doc_new,
                                                  shell_name=self.shell_name,
                                                  topside_extreme_lines=self.topside_insert_extreme_lines,
-                                                 extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                                                 extreme_line_all_blocks=self.extreme_lines_in_all_blocks,
+                                                 list_name_added=self.list_added_blocks)
                 self.leftside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_leftside_insert(leftside_insert=self.leftside_insert)
 
@@ -95,7 +102,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                     shell_create.create_rightside(doc=self.doc_new,
                                                   shell_name=self.shell_name,
                                                   topside_extreme_lines=self.topside_insert_extreme_lines,
-                                                  extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                                                  extreme_line_all_blocks=self.extreme_lines_in_all_blocks,
+                                                  list_name_added=self.list_added_blocks)
                 self.right_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_rightside_insert(rightside_insert=self.rightside_insert)
 
@@ -103,7 +111,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                     shell_create.create_cutside_shell(doc=self.doc_new,
                                                       shell_name=self.shell_name,
                                                       leftside_extreme_lines=self.leftside_insert_extreme_lines,
-                                                      extreme_line_all_blocks=self.extreme_lines_in_all_blocks)
+                                                      extreme_line_all_blocks=self.extreme_lines_in_all_blocks,
+                                                      list_name_added=self.list_added_blocks)
                 self.cutside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_cutside_insert(cutside_insert=self.cutside_insert)
 
@@ -111,7 +120,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                     shell_create.create_withoutcapside_shell(doc=self.doc_new,
                                                              shell_name=self.shell_name,
                                                              cutside_extreme_lines=self.cutside_insert_extreme_lines,
-                                                             extreme_line_in_all_blocks=self.extreme_lines_in_all_blocks)
+                                                             extreme_line_in_all_blocks=self.extreme_lines_in_all_blocks,
+                                                             list_name_added=self.list_added_blocks)
                 self.withoutcapside_insert_extreme_lines = \
                     shell_create.calculate_extreme_lines_in_withoutcapside_insert(withoutcapside_insert=self.withoutcapside_insert)
 
@@ -120,7 +130,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                                                                 shell_name=self.shell_name,
                                                                 extreme_lines_in_all_blocks=self.extreme_lines_in_all_blocks)
                 self.din_insert = shell_create.create_din_reyka(doc=self.doc_new,
-                                                                shell_name=self.shell_name)
+                                                                shell_name=self.shell_name,
+                                                                list_name_added=self.list_added_blocks)
 
     def create_inputs_dxf_after_shell(self):
         '''Создание вводов на сторонах оболочки'''
