@@ -108,12 +108,16 @@ def add_dict(dict_with_tags:dict, count_row:int):
     '''
     row = 0
     for column_name, name_in_bom in dict_with_tags.items():
+        if name_in_bom== None:
+            name_in_bom = ''
         if '#' not in name_in_bom:
             row = max(1, row)
         else:
             row = max(row, len(name_in_bom.split('#')))
 
     for column_name, name_in_bom in dict_with_tags.items():
+        if name_in_bom== None:
+            name_in_bom = ''
         if '#' not in name_in_bom:
              for i in range(0, row):
                  if i == 0:
@@ -126,9 +130,34 @@ def add_dict(dict_with_tags:dict, count_row:int):
                 if len(row_new) == row:
                     dict_with_tags[column_name] = row_new
                 else:
+                    dict_with_tags[column_name] = row_new
+                    for i in range(0,row - len(row_new)):
+                        dict_with_tags[column_name].append('')
 
+    return row + count_row
+def create_dict_main_properties(list_properties:list):
+    '''
+    Свойства нужно вынести наружу и сделать словарь
+    :param list_properties:
+[{'Обозначение': 'ВРПТ.301172.024-11', 'Наименование': 'Оболочка ВП.161610', 'Свойство': 'Сборочные единицы', 'Формат': 'А4', 'Кол.': None, 'Примечание': None},
+ {'Обозначение': None, 'Наименование': 'Винт А2.М6-6gx10.019#ГОСТ 17473-80', 'Свойство': 'Стандартные изделия', 'Формат': 'А4', 'Кол.': None, 'Примечание': None},
+ {'Обозначение': None, 'Наименование': 'Шайба 6 019 ГОСТ 6402-70', 'Свойство': 'Стандартные изделия', 'Формат': 'А4', 'Кол.': None, 'Примечание': None},
+ {'Обозначение': None, 'Наименование': 'Шайба A.6.019 ГОСТ 11371-78', 'Свойство': 'Стандартные изделия', 'Формат': 'А4', 'Кол.': None, 'Примечание': None},
+ {'Обозначение': 'ВРПТ.745551.005-140', 'Наименование': 'DIN-рейка NS35х7,5, L=140 мм', 'Свойство': 'Детали', 'Формат': 'А4', 'Кол.': None, 'Примечание': None},
+ {'Обозначение': 'ВРПТ.305311.001-025', 'Наименование': 'Кабельный ввод ВЗ-Н25#для не бронированного#кабеля, диаметром 12-18мм', 'Свойство': 'Сборочные единицы', 'Формат': 'А4', 'Кол.': None, 'Примечание': None}]
 
-
+    :return: "Стандартные изделия":{}
+    '''
+    return_dict = dict()
+    for equip_dict in list_properties:
+        property = equip_dict['Свойство']
+        if property not in return_dict:
+            equip_dict.pop('Свойство')
+            return_dict[property] = [equip_dict]
+        else:
+            equip_dict.pop('Свойство')
+            return_dict[property].append(equip_dict)
+    return return_dict
 
 
 
@@ -156,26 +185,35 @@ if __name__ == '__main__':
 
     main_border = create_BOM_FIRST(doc_bom=doc_bom)
 
-    end_row_in_bom = 1
-    for equip in list_for_creating_BOM:
-        start_row_in_bom = end_row_in_bom
+    dict_attribs = {attrib.dxf.tag: attrib for attrib in main_border.attribs}
 
-        for namename in equip:
-            print(equip)
-            for attrib in main_border.attribs:
-                try:
-                    if tag_in_BOM_dxf[namename] + str(start_row_in_bom) == attrib.dxf.tag:
-                        if '#' in equip[namename]:
-                            for i in equip[namename].split('#'):
-                                attrib.dxf.text = i
-                                start_row_in_bom+=1
-                        attrib.dxf.text = equip[namename]
-                        print(attrib.dxf.tag)
-                except:
-                    continue
+    list_for_creating_BOM_with = create_dict_main_properties(list_for_creating_BOM)
 
-        # end_row_in_bom =
+    start_row_int = 1
+    startstart_row_int = 1
+    for name_property in list_for_creating_BOM_with:
+        start_row_int += 1
+        startstart_row_int += 1
+        tag_attrib = 'E' + str(start_row_int)
+        dict_attribs[tag_attrib].dxf.text = name_property
+        start_row_int +=2
+        startstart_row_int +=2
+        list_for_creating_BOM = list_for_creating_BOM_with[name_property]
+        for equip_dict in list_for_creating_BOM:
+            max_row = add_dict(dict_with_tags=equip_dict,count_row=startstart_row_int)
+            for column_name in equip_dict:
+                for name in equip_dict[column_name]:
+                    if column_name in tag_in_BOM_dxf:
+                        tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
+                        if tag_attrib in dict_attribs:
+                            dict_attribs[tag_attrib].dxf.text = name
+                            start_row_int +=1
+                start_row_int = startstart_row_int
+            start_row_int = max_row
+            startstart_row_int = max_row
 
+    doc_bom.saveas('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\src\\bom_check.dxf')
 
         # for namename in equip:
-        #     print(namename)
+        #     end_row_int = add_dict(equip,start_row_int)
+
