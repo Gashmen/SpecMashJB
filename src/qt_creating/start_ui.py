@@ -4,9 +4,10 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QDialog
 
 import src.pyui_files.mainver02 as designer_ui
+import src.pyui_files.error as error_ui
 import help_ui
 import src.csv_reader.csv_reader as csv_reader
 from src.dxf_changer import TERMINAL_DB
@@ -92,6 +93,9 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.doc_new = None
         self.list_added_blocks = list()
 
+        '''Дополнительные окна при запуске'''
+        self.error_window = error_ui.Ui_WidgetError()
+
         '''Словарь блоков, которые нужно оставить для рисования dxf {shell_name:[block_1,block_2...],...}'''
         self.dict_for_save_blocks_before_draw = {'border':['Border_A3']}
 
@@ -167,6 +171,18 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
                 if doc_filename:
                     self.doc_new.saveas(doc_filename)
 
+    def save_doc_bom(self):
+        '''При нажатии на предпросмотр сохраняет файл'''
+        if self.doc_bom is not None:
+            self.doc_new.saveas(self.save_path + '\\box')
+        else:
+            doc_filename,_ = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                                 directory= '\\'.join(os.getcwd().split('\\')[0:-1]),
+                                                                 caption="Сохранение dxf файла",
+                                                                 filter= 'DXF Files(*.dxf)')
+            if doc_filename != '':
+                self.doc_bom.saveas(doc_filename)
+
     '''Получение main_dict и заполнение первых ComboBox Widget на каждой странице'''
     def create_csv_main_dict(self):
         '''path_to_csv - это путь до папок, где лежат куча csv файлов'''
@@ -218,14 +234,15 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         csv_path: 'C:/Users/g.zubkov/PycharmProjects/marshallingboxes/Общая база'
         '''
         if csv_path is not None:
-            self.path_to_csv = csv_path
-            self.main_dict = self.create_csv_main_dict()
-            if self.main_dict != {}:
-                self.add_manufacturer_shell_combobox()
-                self.add_manufacturer_inputs_combobox()
-            else:
-                self.manufactureComboboxWidget_shellpage.clear()
-                self.manufacturerInputsComboBox.clear()
+            if csv_path != '':
+                self.path_to_csv = csv_path
+                self.main_dict = self.create_csv_main_dict()
+                if self.main_dict != {}:
+                    self.add_manufacturer_shell_combobox()
+                    self.add_manufacturer_inputs_combobox()
+                else:
+                    self.manufactureComboboxWidget_shellpage.clear()
+                    self.manufacturerInputsComboBox.clear()
 
     def get_csv_file(self):
         '''Определение пути до папки с базой CSV'''
@@ -234,7 +251,13 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.create_main_dict_and_manufacturer_combobox(csv_path=csv_path)
 
     def call_error(self):
-        QMessageBox.critical(self, "Ошибка ", "Тестирование QMessageBox из call_error", QMessageBox.Ok)
+        '''открытие окна ошибки'''
+        self.error_window.show()
+
+        # QMessageBox.critical(self, "Ошибка ", "Тестирование QMessageBox из call_error", QMessageBox.Ok)
+
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

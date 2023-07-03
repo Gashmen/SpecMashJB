@@ -12,6 +12,7 @@ from src.dxf_creating import import_module, shell_create, main_shell_create,term
 from src.dxf_creating import move_inserts
 from src.dxf_creating import dimension_create
 from src.dxf_creating import border_create
+from src.dxf_creating import BOM_create
 
 class DxfCreator(terminal_ui.TerminalPage):
 
@@ -36,7 +37,9 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_border)
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
+        self.previewButton_leftMenu.clicked.connect(self.create_BOM)
 
+        self.Autohelper.clicked.connect(self.create_BOM)
 
 
 
@@ -313,6 +316,70 @@ class DxfCreator(terminal_ui.TerminalPage):
         '''
         self.date_today = str(datetime.date.today())
         self.rudesdataLineEdit.insert(f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}')
+
+    def create_BOM(self):
+        '''Создаем dxf с BOM'''
+        path_to_xlsx = QtWidgets.QFileDialog.getOpenFileName(self,
+                                                             directory='\\'.join(os.getcwd().split('\\')[0:-1]),
+                                                             caption='Выбор файла бд xlsx ',
+                                                             filter='Excel file(*.xlsx)')[0]
+
+        tag_in_BOM_dxf = {'Формат': 'A', 'Зона': 'B', 'Поз.': 'C', 'Обозначение': 'D', 'Наименование': 'E', 'Кол.': 'F',
+                          'Примечание': 'G'}
+
+        if path_to_xlsx:
+            data_base_bom = BOM_create.read_BOM_base(xlsx_base_path=path_to_xlsx)
+            self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=path_to_dxf_shell)
+            border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
+            list_with_block_names = [block.dxf.name for block in self.doc_new.blocks if '*' not in block.dxf.name]
+            list_for_creating_BOM = list()
+            for block_name in list_with_block_names:
+                for count_block, name_block_base in data_base_bom['Блок'].items():
+                    if name_block_base == block_name:
+                        _dict = {}
+                        for _ in data_base_bom:
+                            if _ != 'Блок':
+                                _dict[_] = data_base_bom[_][count_block]
+                        list_for_creating_BOM.append(_dict)
+            list_for_creating_BOM_with = BOM_create.create_dict_main_properties(list_for_creating_BOM)
+            dict_attribs = {attrib.dxf.tag: attrib for attrib in border_insert_first_page.attribs}
+
+            start_row_int = 1
+            startstart_row_int = 1
+            for name_property in list_for_creating_BOM_with:
+                start_row_int += 1
+                startstart_row_int += 1
+                tag_attrib = 'E' + str(start_row_int)
+                dict_attribs[tag_attrib].dxf.text = name_property
+                start_row_int += 2
+                startstart_row_int += 2
+                list_for_creating_BOM = list_for_creating_BOM_with[name_property]
+                for equip_dict in list_for_creating_BOM:
+                    max_row = BOM_create.add_dict(dict_with_tags=equip_dict, count_row=startstart_row_int)
+                    for column_name in equip_dict:
+                        for name in equip_dict[column_name]:
+                            if column_name in tag_in_BOM_dxf:
+                                tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
+                                if tag_attrib in dict_attribs:
+                                    dict_attribs[tag_attrib].dxf.text = name
+                                    start_row_int += 1
+                        start_row_int = startstart_row_int
+                    start_row_int = max_row
+                    startstart_row_int = max_row
+
+            self.save_doc_bom()
+
+        else:
+            self.error_window.add_error('Не выбран путь для базы цен и оборудования xlsx')
+
+
+
+
+
+
+
+
+
 
 
 

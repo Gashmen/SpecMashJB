@@ -91,6 +91,8 @@ class ShellPageSetup(designer_ui.Mainver):
             self.manufactureComboboxWidget_shellpage.clear()
             list_manufacturer_for_shell = csv_reader.define_list_manufacturer_for_shell(main_dict=self.main_dict)
             self.manufactureComboboxWidget_shellpage.addItems(list_manufacturer_for_shell)
+        else:
+            self.error_window.add_error('Не создан main_dict в ShellPage')
 
     def give_ex_type_and_dict_with_this_ex(self):
         '''Добавляет в Вид взрывозащиты Combobox имеющиеся типы
@@ -107,6 +109,8 @@ class ShellPageSetup(designer_ui.Mainver):
             self.list_with_ex_for_combobox.insert(0, '')
             if self.list_with_ex_for_combobox:
                 self.safefactortypeCombobox_shellpage.addItems(self.list_with_ex_for_combobox)
+        else:
+            self.error_window.add_error('self.manufactureComboboxWidget_shellpage является None или ''')
 
     def give_serial_type(self):
         '''
@@ -122,6 +126,8 @@ class ShellPageSetup(designer_ui.Mainver):
                 self.serial_ex_type.insert(0, '')
                 self.serial_ex_type.sort()
                 self.serialCombobox_shellpage.addItems(self.serial_ex_type)
+        else:
+            self.error_window.add_error('self.safefactortypeCombobox_shellpage является None или ''')
 
 
     def write_serialtype_in_general_dict_with_all_info(self):
@@ -132,6 +138,7 @@ class ShellPageSetup(designer_ui.Mainver):
     def give_size(self):
         """
         Выдает размеры оболочек только те, которые есть в dxf базе
+        update : Не выдает!
         :return:
         """
         self.sizeCombobox_shellpage.clear()
@@ -154,6 +161,8 @@ class ShellPageSetup(designer_ui.Mainver):
             self.dict_full_name_shell_page['Tag'] = \
                 f'К{self.serialCombobox_shellpage.currentText()}.{self.sizeCombobox_shellpage.currentText()}'
             print(self.dict_full_name_shell_page['Tag'])
+        else:
+            self.error_window.add_error('self.sizeCombobox_shellpage является None или ''')
 
     '''ПОСЛЕ ПОЛУЧЕНИЯ КЛЮЧА МОЖНО НАЧАТЬ СТРОИТЬ ОБОЛОЧКУ И СОБИРАТЬ ДЛЯ НЕЕ ДАННЫЕ'''
     def give_key(self):
@@ -169,6 +178,7 @@ class ShellPageSetup(designer_ui.Mainver):
                                                                 [self.safefactortypeCombobox_shellpage.currentText()])
         else:
             self.shell_key = None
+            self.error_window.add_error('give key не создан')
 
         self.create_shell_name_for_dxf_creating()
         self.get_full_sizes_shell()
@@ -196,6 +206,8 @@ class ShellPageSetup(designer_ui.Mainver):
                 elif self.ore_mark_RadioButton_shellpage.isChecked():
                     for _ in self.dict_with_ex_marking['ore']:
                         self.gasdustoreComboBox_shellpage.addItem(_)
+        else:
+            self.error_window.add_error('give key не создан')
 
     def give_T_class_and_maxT(self):
         '''Определяет Т класс в зависимости от указанного температурного диапазона'''
@@ -246,6 +258,8 @@ class ShellPageSetup(designer_ui.Mainver):
                     self.dict_full_name_shell_page['Tag'] = \
                         f'К{self.serialCombobox_shellpage.currentText()}.{self.sizeCombobox_shellpage.currentText()}'+\
                         f'({self.mintempLineEdit_shellpage.text()}...+{self.maxtempLineedit_shellpage.text()})'
+
+
 
     def create_shell_name_for_dxf_creating(self):
         '''Создание имени для построения после заполнения self.shell_key'''
