@@ -135,6 +135,7 @@ def add_dict(dict_with_tags:dict, count_row:int):
                         dict_with_tags[column_name].append('')
 
     return row + count_row
+
 def create_dict_main_properties(list_properties:list):
     '''
     Свойства нужно вынести наружу и сделать словарь
@@ -159,7 +160,33 @@ def create_dict_main_properties(list_properties:list):
             return_dict[property].append(equip_dict)
     return return_dict
 
+def create_list_all_block_names_in_doc(doc):
+    '''
+    Создает список всех блоков импортированных в self.doc_new
+    :param doc: self.doc_new
+    :return: ['SUPU_SCREW..., VP.161610_topside,...']
+    '''
+    return  [block.dxf.name for block in doc.blocks if '*' not in block.dxf.name]
 
+
+def check_next_page(BOM_insert_name, row_number:int):
+    '''
+    Проверка на создание следующей страницы
+    :param BOM_insert_name: либо BOM_FIRST либо BOM_SECOND
+    :param row_number: 1-29 или 1-32
+    :return: True or False
+    '''
+
+    if BOM_insert_name == 'BOM_FIRST':
+        if row_number > 29:
+            return False
+        else:
+            return True
+    elif BOM_insert_name == 'BOM_SECOND':
+        if row_number > 32:
+            return False
+        else:
+            return True
 
 if __name__ == '__main__':
 
@@ -171,7 +198,9 @@ if __name__ == '__main__':
 
     tag_in_BOM_dxf = {'Формат':'A', 'Зона':'B', 'Поз.':'C', 'Обозначение':'D', 'Наименование':'E', 'Кол.': 'F', 'Примечание':'G'}
 
-    list_with_block_names = [block.dxf.name for block in doc.blocks if '*' not in block.dxf.name]
+    list_with_block_names = create_list_all_block_names_in_doc(doc=doc)
+
+
     for block_name in list_with_block_names:
         for count_block, name_block_base in data_base_bom['Блок'].items():
             if name_block_base == block_name:
@@ -189,6 +218,7 @@ if __name__ == '__main__':
 
     list_for_creating_BOM_with = create_dict_main_properties(list_for_creating_BOM)
 
+
     start_row_int = 1
     startstart_row_int = 1
     for name_property in list_for_creating_BOM_with:
@@ -201,6 +231,7 @@ if __name__ == '__main__':
         list_for_creating_BOM = list_for_creating_BOM_with[name_property]
         for equip_dict in list_for_creating_BOM:
             max_row = add_dict(dict_with_tags=equip_dict,count_row=startstart_row_int)
+
             for column_name in equip_dict:
                 for name in equip_dict[column_name]:
                     if column_name in tag_in_BOM_dxf:

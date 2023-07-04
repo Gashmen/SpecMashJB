@@ -174,14 +174,12 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
     def save_doc_bom(self):
         '''При нажатии на предпросмотр сохраняет файл'''
         if self.doc_bom is not None:
-            self.doc_new.saveas(self.save_path + '\\box')
-        else:
-            doc_filename,_ = QtWidgets.QFileDialog.getSaveFileName(self,
+            doc_bom_filename,_ = QtWidgets.QFileDialog.getSaveFileName(self,
                                                                  directory= '\\'.join(os.getcwd().split('\\')[0:-1]),
                                                                  caption="Сохранение dxf файла",
                                                                  filter= 'DXF Files(*.dxf)')
-            if doc_filename != '':
-                self.doc_bom.saveas(doc_filename)
+            if doc_bom_filename != '':
+                self.doc_bom.saveas(doc_bom_filename)
 
     '''Получение main_dict и заполнение первых ComboBox Widget на каждой странице'''
     def create_csv_main_dict(self):
