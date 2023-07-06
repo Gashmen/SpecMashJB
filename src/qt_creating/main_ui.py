@@ -355,15 +355,16 @@ class DxfCreator(terminal_ui.TerminalPage):
                 startstart_row_int += 2
                 list_for_creating_BOM = list_for_creating_BOM_with[name_property]
                 for equip_dict in list_for_creating_BOM:
-                    max_row = BOM_create.add_dict(dict_with_tags=equip_dict, count_row=startstart_row_int)
+                    max_row = BOM_create.add_dict(dict_with_all_info_in_BOM_row=equip_dict, count_row=startstart_row_int)
                     for column_name in equip_dict:
-                        for name in equip_dict[column_name]:
-                            if column_name in tag_in_BOM_dxf:
-                                tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
-                                if tag_attrib in dict_attribs:
-                                    dict_attribs[tag_attrib].dxf.text = name
-                                    start_row_int += 1
-                        start_row_int = startstart_row_int
+                        if 'Цена' != column_name:
+                            for name in equip_dict[column_name]:
+                                if column_name in tag_in_BOM_dxf:
+                                    tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
+                                    if tag_attrib in dict_attribs:
+                                        dict_attribs[tag_attrib].dxf.text = name
+                                        start_row_int += 1
+                            start_row_int = startstart_row_int
                     start_row_int = max_row
                     startstart_row_int = max_row
 

@@ -99,40 +99,82 @@ def write_attrib(BOM_insert,dict_for_writing_attrib):
 
     row_start+=1
 
-def add_dict(dict_with_tags:dict, count_row:int):
+def calculate_count_row_for_one_position(dict_with_all_info_in_BOM_row:dict)->int:
     '''
-    Нужно добавить в этот же словарь тэг того, сколько страниц добавить в конце после прохода по данному словорю а также найти, сколько нужно добавить
-    :param dict_with_tags:{'Обозначение': 'ВРПТ.305311.001-025', 'Наименование': 'Кабельный ввод ВЗ-Н25#для не бронированного#кабеля, диаметром 12-18мм', 'Свойство': 'Сборочные единицы', 'Формат': 'А4', 'Кол.': None, 'Примечание': None}
-    :param count_row:1
-    :return:
+    Расчитать количество строк, которые понадобятся для этой позиции для заполнения в BOM
+    :param dict_with_all_info_in_BOM_row: {'Обозначение': 'ВРПТ.301172.024-11', 'Наименование': 'Кабельный ввод ВЗ-Н25#для не бронированного#кабеля, диаметром 12-18мм',
+                                            'Формат': 'А4', 'Кол.': None, 'Примечание': None}
+    :return: row:int
     '''
     row = 0
-    for column_name, name_in_bom in dict_with_tags.items():
+    for column_name, name_in_bom in dict_with_all_info_in_BOM_row.items():
         if name_in_bom== None:
             name_in_bom = ''
+        name_in_bom = str(name_in_bom)
         if '#' not in name_in_bom:
             row = max(1, row)
         else:
             row = max(row, len(name_in_bom.split('#')))
+    return row
 
-    for column_name, name_in_bom in dict_with_tags.items():
+def recreate_dict_with_all_info_in_BOM_row(dict_with_all_info_in_BOM_row:dict,row:int):
+    '''
+    Пересоздает словарь dict_with_all_info_in_BOM_row
+    :param dict_with_all_info_in_BOM_row: {'Обозначение': 'ВРПТ.301172.024-11', 'Наименование': 'Кабельный ввод ВЗ-Н25#для не бронированного#кабеля, диаметром 12-18мм',
+                                            'Формат': 'А4', 'Кол.': None, 'Примечание': None}
+    :param row: 4
+    :return: {'Обозначение': ['ВРПТ.301172.024-11','',''], 'Наименование': ['Кабельный ввод ВЗ-Н25','для не бронированного','кабеля, диаметром 12-18мм'],
+                'Формат': ['А4','',''], 'Кол.': ['','',''], 'Примечание': ['','','']}
+    '''
+    for column_name, name_in_bom in dict_with_all_info_in_BOM_row.items():
         if name_in_bom== None:
             name_in_bom = ''
         if '#' not in name_in_bom:
              for i in range(0, row):
                  if i == 0:
-                     dict_with_tags[column_name] = [name_in_bom]
+                     dict_with_all_info_in_BOM_row[column_name] = [name_in_bom]
                  else:
-                     dict_with_tags[column_name].append('')
+                     dict_with_all_info_in_BOM_row[column_name].append('')
         else:
             row_new = name_in_bom.split('#')
             for i in range(0, row):
                 if len(row_new) == row:
-                    dict_with_tags[column_name] = row_new
+                    dict_with_all_info_in_BOM_row[column_name] = row_new
                 else:
-                    dict_with_tags[column_name] = row_new
+                    dict_with_all_info_in_BOM_row[column_name] = row_new
                     for i in range(0,row - len(row_new)):
-                        dict_with_tags[column_name].append('')
+                        dict_with_all_info_in_BOM_row[column_name].append('')
+
+
+def add_dict(dict_with_all_info_in_BOM_row:dict, count_row:int):
+    '''
+    Нужно добавить в этот же словарь тэг того, сколько страниц добавить в конце после прохода по данному словорю а также найти, сколько нужно добавить
+    :param dict_with_all_info_in_BOM_row:{'Обозначение': 'ВРПТ.305311.001-025', 'Наименование': 'Кабельный ввод ВЗ-Н25#для не бронированного#кабеля, диаметром 12-18мм', 'Свойство': 'Сборочные единицы', 'Формат': 'А4', 'Кол.': None, 'Примечание': None}
+    :param count_row:1
+    :return:
+    '''
+    #Получаем необходимо число строк
+    row = calculate_count_row_for_one_position(dict_with_all_info_in_BOM_row)
+
+    for column_name, name_in_bom in dict_with_all_info_in_BOM_row.items():
+        if name_in_bom== None:
+            name_in_bom = ''
+        name_in_bom = str(name_in_bom)
+        if '#' not in name_in_bom:
+             for i in range(0, row):
+                 if i == 0:
+                     dict_with_all_info_in_BOM_row[column_name] = [name_in_bom]
+                 else:
+                     dict_with_all_info_in_BOM_row[column_name].append('')
+        else:
+            row_new = name_in_bom.split('#')
+            for i in range(0, row):
+                if len(row_new) == row:
+                    dict_with_all_info_in_BOM_row[column_name] = row_new
+                else:
+                    dict_with_all_info_in_BOM_row[column_name] = row_new
+                    for i in range(0,row - len(row_new)):
+                        dict_with_all_info_in_BOM_row[column_name].append('')
 
     return row + count_row
 
@@ -160,7 +202,7 @@ def create_dict_main_properties(list_properties:list):
             return_dict[property].append(equip_dict)
     return return_dict
 
-def create_list_all_block_names_in_doc(doc):
+def create_list_all_block_names_in_doc(doc_new):
     '''
     Создает список всех блоков импортированных в self.doc_new
     :param doc: self.doc_new
@@ -169,7 +211,7 @@ def create_list_all_block_names_in_doc(doc):
     return  [block.dxf.name for block in doc.blocks if '*' not in block.dxf.name]
 
 
-def check_next_page(BOM_insert_name, row_number:int):
+def check_next_page(BOM_insert_name:str, row_number:int):
     '''
     Проверка на создание следующей страницы
     :param BOM_insert_name: либо BOM_FIRST либо BOM_SECOND
@@ -188,19 +230,38 @@ def check_next_page(BOM_insert_name, row_number:int):
         else:
             return True
 
+def write_mainproperty_in_bom_E_cell(BOM_insert_name:str, row_number:int, mainproperty_attribtag_name:str, dict_attribs:dict):
+    '''
+    Заполнение спецификации Сборочная единица, Деталь, и тд
+    :return:True or False
+    '''
+    if check_next_page(BOM_insert_name=BOM_insert_name, row_number = row_number + 4):
+        row_number +=1
+        tag_attrib = 'E' + str(row_number)
+        dict_attribs[tag_attrib].dxf.text = mainproperty_attribtag_name
+        row_number += 2
+        return True
+    else:
+        return False
+
+
+
+
+
+
 if __name__ == '__main__':
 
     # create_BOM_FIRST(doc_bom=doc)
     # doc.saveas('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\test_BOM.dxf')
-    list_for_creating_BOM = list()
+
     data_base_bom = read_BOM_base(xlsx_base_path='C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\naming_base.xlsx')
     doc = ezdxf.readfile('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf')
 
     tag_in_BOM_dxf = {'Формат':'A', 'Зона':'B', 'Поз.':'C', 'Обозначение':'D', 'Наименование':'E', 'Кол.': 'F', 'Примечание':'G'}
 
-    list_with_block_names = create_list_all_block_names_in_doc(doc=doc)
+    list_with_block_names = create_list_all_block_names_in_doc(doc_new=doc)
 
-
+    list_for_creating_BOM = list()
     for block_name in list_with_block_names:
         for count_block, name_block_base in data_base_bom['Блок'].items():
             if name_block_base == block_name:
@@ -216,21 +277,21 @@ if __name__ == '__main__':
 
     dict_attribs = {attrib.dxf.tag: attrib for attrib in main_border.attribs}
 
-    list_for_creating_BOM_with = create_dict_main_properties(list_for_creating_BOM)
-
+    dict_for_creating_BOM_with = create_dict_main_properties(list_for_creating_BOM)
 
     start_row_int = 1
     startstart_row_int = 1
-    for name_property in list_for_creating_BOM_with:
+    for name_property in dict_for_creating_BOM_with:
+        # if write_mainproperty_in_bom_E_cell(BOM_insert_name = main_border, row_number:int, mainproperty_attribtag_name:str, dict_attribs:dict)
         start_row_int += 1
         startstart_row_int += 1
         tag_attrib = 'E' + str(start_row_int)
         dict_attribs[tag_attrib].dxf.text = name_property
         start_row_int +=2
         startstart_row_int +=2
-        list_for_creating_BOM = list_for_creating_BOM_with[name_property]
+        list_for_creating_BOM = dict_for_creating_BOM_with[name_property]
         for equip_dict in list_for_creating_BOM:
-            max_row = add_dict(dict_with_tags=equip_dict,count_row=startstart_row_int)
+            max_row = add_dict(dict_with_all_info_in_BOM_row=equip_dict, count_row=startstart_row_int)
 
             for column_name in equip_dict:
                 for name in equip_dict[column_name]:
