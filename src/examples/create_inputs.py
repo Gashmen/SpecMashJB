@@ -2,6 +2,46 @@ import ezdxf
 import random
 '''https://www.notion.so/di258/1-7ea0c37847564504aae770e297247076'''
 
+def checking_clear_inputs_dict(dict_with_inputs_name_and_diam:dict):
+    '''
+    Проверка, стал ли пустым список вставленных кабельных вводов
+    :param dict_with_inputs_name_and_diam: {0:{ВЗ-Н50:25}, 1:{ВЗ-Н40, 20},...
+    :return:True or False
+    '''
+    if (len(dict_with_inputs_name_and_diam) != 0):
+        return True
+    else:
+        return False
+
+def delete_input_from_dict(dict_with_inputs_name_and_diam:dict, keynumber_for_delete_input:int):
+    '''
+    Удаление кабельного ввода из словаря вставки
+    :param dict_with_inputs_name_and_diam: {0:{ВЗ-Н50:25}, 1:{ВЗ-Н40, 20},...
+    :return: True or False
+    '''
+    try:
+        del dict_with_inputs_name_and_diam[keynumber_for_delete_input]
+    except:
+        KeyError('Такого кабельного ввода нет в словаре')
+
+def delete_diametr_from_list(list_with_diamerts:list,diametr:float):
+    '''
+    Удалить из списка диаметров данный диаметр
+    :param list_with_diamerts:[50,45,40,34,34,34]
+    :return:
+    '''
+    if diametr in list_with_diamerts:
+        list_with_diamerts.remove(diametr)
+    else:
+        ValueError('Нет данного диаметра')
+
+
+
+
+
+
+
+
 '''1'''
 def create_points_of_drill_surface(doc,
                                    side=None,
@@ -263,8 +303,6 @@ def sort_list_diametr_russian(list_with_diametr_russian:list, dict_with_name_dia
 
     list_with_sorted_names = sorted(list_with_diametr_russian, key=lambda x:dict_with_name_diametr[x],reverse=True)
     return list_with_sorted_names
-
-
 
 
 if __name__ == "__main__":

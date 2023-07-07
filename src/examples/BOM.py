@@ -224,13 +224,10 @@ def write_second_iteration_in_dict(dict_with_BOM_tags:dict[str:str], number_row:
                          number_BOM_page=number_BOM_page):
         for column_name in dict_names_attribs:
             for count_name_attrib, name_attrib in enumerate(dict_names_attribs[column_name]):
-                dict_with_BOM_tags[tag_in_BOM_dxf[column_name] + f'{number_row+ count_name_attrib}'] = name_attrib
+                dict_with_BOM_tags[tag_in_BOM_dxf[column_name] + f'{number_row + count_name_attrib}'] = name_attrib
         return number_row + max_row
     else:
         return False
-
-
-
 
 def create_main_properties(dict_all_attribs:dict[str:list[dict]], name_attrib:str, row:int, tag_in_BOM_dxf:dict[str:str]):
     '''
@@ -245,8 +242,6 @@ def create_main_properties(dict_all_attribs:dict[str:list[dict]], name_attrib:st
     if f'E{row}' not in dict_all_attribs:
         dict_all_attribs[f'E{row}'] = name_attrib
     row +=2
-
-
 
 
 
@@ -289,6 +284,7 @@ if __name__ == '__main__':
                                                             dict_names_attribs=dict_second_level,
                                                             number_BOM_page=page_bom)
                 if isinstance(number_row, int):
+
 
 
         else:
