@@ -36,12 +36,6 @@ def delete_diametr_from_list(list_with_diamerts:list,diametr:float):
         ValueError('Нет данного диаметра')
 
 
-
-
-
-
-
-
 '''1'''
 def create_points_of_drill_surface(doc,
                                    side=None,
@@ -123,6 +117,7 @@ def define_rectangle_size_for_inputs(dict_with_x_y_coordinates: dict[str:list]):
     return_dict['xy0'] = [dict_with_x_y_coordinates['x'][0], dict_with_x_y_coordinates['y'][-2]]
     return_dict['xy1'] = [dict_with_x_y_coordinates['x'][-1], dict_with_x_y_coordinates['y'][-1]]
     return return_dict
+
 
 
 '''4'''
