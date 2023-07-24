@@ -565,13 +565,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
 
 
 
-    def define_blocks_name_inputs_before_draw(self):
-        '''Определяем имена блоков для импорта для вводов кабельных'''
-        if any(list(self.dict_with_inputs_on_side.values())):
-            self.dict_for_save_blocks_before_draw['inputs'] = \
-                inputs_create.create_list_for_draw_inputs(self.dict_with_inputs_on_side)
-
-
 if __name__ == '__main__':
     path_to_csv = os.getcwd() + '\Общая база'
     path_to_dxf = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\Оболочка\\ContainerVer02.dxf'

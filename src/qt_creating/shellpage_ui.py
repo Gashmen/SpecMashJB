@@ -184,8 +184,6 @@ class ShellPageSetup(designer_ui.Mainver):
         self.get_full_sizes_shell()
         self.define_blocks_name_shell_before_draw()
 
-
-
     def set_ex_marking(self):
         '''
         :return:
@@ -260,7 +258,6 @@ class ShellPageSetup(designer_ui.Mainver):
                         f'({self.mintempLineEdit_shellpage.text()}...+{self.maxtempLineedit_shellpage.text()})'
 
 
-
     def create_shell_name_for_dxf_creating(self):
         '''Создание имени для построения после заполнения self.shell_key'''
         if self.shell_key != None:
@@ -282,10 +279,27 @@ class ShellPageSetup(designer_ui.Mainver):
         '''Составление полного именни оболочки как например КВП.161610(-60...+60)'''
         if self.shell_key != None:
             maindict_manufacturer_extype = self.main_dict[
-                                              self.manufactureComboboxWidget_shellpage.currentText()][
-                                                   self.safefactortypeCombobox_shellpage.currentText()]
+                                                   self.manufactureComboboxWidget_shellpage.currentText()][
+                                                       self.safefactortypeCombobox_shellpage.currentText()]
             for type_size in self.full_size_shell.keys():
                 self.full_size_shell[type_size] = maindict_manufacturer_extype[type_size][self.shell_key]
+
+    def get_lwpolyline(self):
+        self.polyline_xy_coordinate_side = dict()
+        if self.doc_new != None:
+            sides = ('rightside','leftside','downside','upside')
+            for side in sides:
+                self.polyline_xy_coordinate_side[side] = {'x': [], 'y': []}
+                lwpolyline = self.doc_new.blocks[self.shell_name + '_'+side].query('LWPOLYLINE')[0]
+                if lwpolyline is not None:
+                    for xy_coordinate in lwpolyline.get_points():
+                        self.polyline_xy_coordinate_side[side]['x'].append(round(xy_coordinate[0], 2))
+                        self.polyline_xy_coordinate_side[side]['y'].append(round(xy_coordinate[1], 2))
+
+                    self.polyline_xy_coordinate_side[side]['x'] = tuple(sorted(set(self.polyline_xy_coordinate_side[side]['x'])))
+                    self.polyline_xy_coordinate_side[side]['y'] = tuple(sorted(set(self.polyline_xy_coordinate_side[side]['y'])))
+        else:
+            return None
 
 
 if __name__ == "__main__":

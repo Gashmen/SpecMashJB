@@ -32,6 +32,7 @@ class DxfCreator(terminal_ui.TerminalPage):
                          )
 
         self.previewButton_leftMenu.clicked.connect(self.create_shell_dxf_after_selfkey)
+        self.previewButton_leftMenu.clicked.connect(self.get_lwpolyline) #Получение координат полилинии, потом удалить
         self.previewButton_leftMenu.clicked.connect(self.create_inputs_dxf_after_shell)
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
         self.previewButton_leftMenu.clicked.connect(self.create_border)
@@ -40,7 +41,6 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_BOM)
 
         self.Autohelper.clicked.connect(self.create_BOM)
-
 
 
         '''Для планшета ставлю значения спинбоксов заранее, т.к. не видно их и нет дизайнера тут'''
@@ -60,9 +60,10 @@ class DxfCreator(terminal_ui.TerminalPage):
         '''Создание dxf оболочки'''
         if self.shell_key != None:
             if 'shell' in self.dict_for_save_blocks_before_draw.keys():
-                self.doc_new = import_module.clear_base_doc_for_new(
-                    dxfbase_path=self.path_to_dxf,
-                    dict_for_save_blocks_before_draw=self.dict_for_save_blocks_before_draw)
+                self.doc_new = \
+                    import_module.clear_base_doc_for_new(
+                        dxfbase_path=self.path_to_dxf,
+                        dict_for_save_blocks_before_draw=self.dict_for_save_blocks_before_draw)
 
                 self.extreme_lines_in_all_blocks = shell_create.define_extreme_lines_in_all_blocks(doc=self.doc_new)
 
@@ -372,15 +373,6 @@ class DxfCreator(terminal_ui.TerminalPage):
 
         else:
             self.error_window.add_error('Не выбран путь для базы цен и оборудования xlsx')
-
-
-
-
-
-
-
-
-
 
 
 

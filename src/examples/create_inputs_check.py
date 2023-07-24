@@ -93,8 +93,27 @@ def build_dict_one_row(input_name:str, coordinate_input:list[float,float]):
     dict_one_row = {input_name:coordinate_input}
     return dict_one_row
 
-def find_start_of_rectangle_many_row()
+def find_start_of_rectangle_many_row(level:int,level_dict:dict):
+    '''
+    start_of_rectanle = level - 1['end_rectangle']
+    :param level: от 1 уровня
+    :return:
+    '''
+    if level-1 in level_dict:
+        start_of_rectangle_level = level_dict[level-1]['end_rectangle']
+        level_dict[level] = {'start_rectangle':start_of_rectangle_level}
+    else:
+        raise ValueError('Нет предыдущего уровня в level dict | find_start_of_rectangle_many_row ')
 
+def end_rectangle(diametr:float, start_rectangle:float):
+    '''
+    Получение конечной точки уровня
+    :param diametr: Диаметр кабельного ввода
+    :param start_rectangle: координата x данного уровня
+    :return:
+    '''
+    end_rectangle = start_rectangle + diametr + 5
+    return end_rectangle
 
 
 def build_main_dict(main_dict:dict, count:int,dict_one_row:dict[str:list[float,float]]):
@@ -115,6 +134,9 @@ def build_main_dict(main_dict:dict, count:int,dict_one_row:dict[str:list[float,f
 dict_with_all_info_from_start = dict_with_inputs_name_and_diam.copy()
 count_input = 0
 main_dict = dict()
+level_dict = dict()
+
+
 
 while create_inputs.checking_clear_inputs_dict():
     if check_possible_to_add_all_inputs_in_one_row():
@@ -124,7 +146,7 @@ while create_inputs.checking_clear_inputs_dict():
             start_rectangle = find_start_of_rectangle_one_row()
 
         set_coordinate_one_row(y_coordinate=calculate_y_one_row(),
-                          x_coordinate= calculate_x_one_row())
+                               x_coordinate= calculate_x_one_row())
 
         set_input_name()
         build_dict_one_row()
@@ -140,13 +162,19 @@ while create_inputs.checking_clear_inputs_dict():
         {level: {start_rectangle: x_coordinate,end_rectangle:x_coordinate + diam + 5, 0:{ВЗ-Н50:[x,y]},1:{ВЗ-Н40:[x,y]} }
         
         '''
-
-
-        level = 0
+        start_rectangle = int()
         if count_input == 0:
             start_rectangle = 0
+            level_dict[count_input] = {'start_rectangle': start_rectangle}
+
+
+
         else:
-            start_rectangle = find_start_of_rectangle_one_row()
+            start_rectangle = find_start_of_rectangle_many_row()
+
+
+
+
 
 
 

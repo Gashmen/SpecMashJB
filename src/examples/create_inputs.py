@@ -5,7 +5,7 @@ import random
 def checking_clear_inputs_dict(dict_with_inputs_name_and_diam:dict):
     '''
     Проверка, стал ли пустым список вставленных кабельных вводов
-    :param dict_with_inputs_name_and_diam: {0:{ВЗ-Н50:25}, 1:{ВЗ-Н40, 20},...
+    :param dict_with_inputs_name_and_diam: {0:{ВЗ-Н50:25}, 1:{ВЗ-Н40:20},...
     :return:True or False
     '''
     if (len(dict_with_inputs_name_and_diam) != 0):
@@ -24,6 +24,7 @@ def delete_input_from_dict(dict_with_inputs_name_and_diam:dict, keynumber_for_de
     except:
         KeyError('Такого кабельного ввода нет в словаре')
 
+
 def delete_diametr_from_list(list_with_diamerts:list,diametr:float):
     '''
     Удалить из списка диаметров данный диаметр
@@ -34,7 +35,6 @@ def delete_diametr_from_list(list_with_diamerts:list,diametr:float):
         list_with_diamerts.remove(diametr)
     else:
         ValueError('Нет данного диаметра')
-
 
 '''1'''
 def create_points_of_drill_surface(doc,

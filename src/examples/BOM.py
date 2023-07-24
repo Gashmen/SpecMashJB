@@ -283,7 +283,7 @@ if __name__ == '__main__':
                                                             number_row=number_row,
                                                             dict_names_attribs=dict_second_level,
                                                             number_BOM_page=page_bom)
-                if isinstance(number_row, int):
+                # if isinstance(number_row, int):
 
 
 
