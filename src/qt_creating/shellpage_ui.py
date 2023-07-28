@@ -284,6 +284,7 @@ class ShellPageSetup(designer_ui.Mainver):
             for type_size in self.full_size_shell.keys():
                 self.full_size_shell[type_size] = maindict_manufacturer_extype[type_size][self.shell_key]
 
+
     def get_lwpolyline(self):
         self.polyline_xy_coordinate_side = dict()
         if self.doc_new != None:
@@ -293,8 +294,8 @@ class ShellPageSetup(designer_ui.Mainver):
                 lwpolyline = self.doc_new.blocks[self.shell_name + '_'+side].query('LWPOLYLINE')[0]
                 if lwpolyline is not None:
                     for xy_coordinate in lwpolyline.get_points():
-                        self.polyline_xy_coordinate_side[side]['x'].append(round(xy_coordinate[0], 2))
-                        self.polyline_xy_coordinate_side[side]['y'].append(round(xy_coordinate[1], 2))
+                        self.polyline_xy_coordinate_side[side]['x'].append(round(xy_coordinate[0], 1))
+                        self.polyline_xy_coordinate_side[side]['y'].append(round(xy_coordinate[1], 1))
 
                     self.polyline_xy_coordinate_side[side]['x'] = tuple(sorted(set(self.polyline_xy_coordinate_side[side]['x'])))
                     self.polyline_xy_coordinate_side[side]['y'] = tuple(sorted(set(self.polyline_xy_coordinate_side[side]['y'])))

@@ -32,7 +32,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                          )
 
         self.previewButton_leftMenu.clicked.connect(self.create_shell_dxf_after_selfkey)
-        self.previewButton_leftMenu.clicked.connect(self.get_lwpolyline) #Получение координат полилинии, потом удалить
+        self.previewButton_leftMenu.clicked.connect(self.get_lwpolyline) # Переместить по хорошему в shellpage_ui
+        self.previewButton_leftMenu.clicked.connect(self.get_coordinates_for_side)  # Переместить по хорошему в inputspage_ui
         self.previewButton_leftMenu.clicked.connect(self.create_inputs_dxf_after_shell)
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
         self.previewButton_leftMenu.clicked.connect(self.create_border)
@@ -189,7 +190,6 @@ class DxfCreator(terminal_ui.TerminalPage):
                                                                    list_terminal_blocks=list_with_terminals,
                                                                    shell_name=self.shell_name)
 
-
                     self.list_for_import_terminal = terminal_create.create_list_for_drawing_terminal(self.list_from_terminal_listwidget)
 
             move_inserts.scale_all_insert(doc=self.doc_new,
@@ -204,6 +204,9 @@ class DxfCreator(terminal_ui.TerminalPage):
         insert_on_topside = dimension_create.define_inputs_on_topside(doc=self.doc_new,
                                                                       shell_name=self.shell_name,
                                                                       extreme_lines_topside_after_scale=extreme_lines_topside_after_scale)
+
+
+
         point_for_horizontal_dimension = \
             {'max_up': dimension_create.calculate_max_up_coordinate(
                 doc=self.doc_new,insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
@@ -218,9 +221,15 @@ class DxfCreator(terminal_ui.TerminalPage):
                  doc=self.doc_new, insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
                  topside_extreme_lines=extreme_lines_topside_after_scale)}
 
+        min_x_for_vertical_dim = min(point_for_horizontal_dimension['min_down'][0],
+                                     point_for_horizontal_dimension['max_up'][0])
+
+        point_for_horizontal_dimension['min_down'][0] = min_x_for_vertical_dim
+        point_for_horizontal_dimension['max_up'][0] = min_x_for_vertical_dim
+
         dim = self.doc_new.modelspace().add_aligned_dim(
-            p1=point_for_horizontal_dimension['min_down'],
-            p2=point_for_horizontal_dimension['max_up'],
+            p1=tuple(point_for_horizontal_dimension['min_down']),
+            p2=tuple(point_for_horizontal_dimension['max_up']),
             dimstyle='EZDXF',
             distance=(extreme_lines_topside_after_scale['x_max']-extreme_lines_topside_after_scale['x_min'])/2 +
                      (self.input_max_len/self.scale_drawing)/2

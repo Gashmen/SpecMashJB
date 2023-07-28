@@ -143,6 +143,15 @@ def calculate_sum_len_terminal(doc_after_import,list_with_terminal:list):
     '''
     pass
 
+def set_hatch_before_entity(block):
+    '''
+    Вынос наперед заливки
+    :param block:
+    :return:
+    '''
+    block.set_redraw_order(
+        (solid.dxf.handle, "%X" % (200 - solid.dxf.color))
+        for solid in block.entity_space if solid.dxftype() == 'HATCH')
 
 def create_terminal_on_din(doc_after_import, list_terminal_blocks, din_reyka_insert):
     '''Создать клеммы на дин рейке
@@ -162,6 +171,9 @@ def create_terminal_on_din(doc_after_import, list_terminal_blocks, din_reyka_ins
 
 
     for terminal_name in list_terminal_blocks:
+        #Работаем с hatch
+        # block_terminal = doc_after_import.blocks[terminal_name]
+        # set_hatch_before_entity(block=block_terminal)
 
         len_terminal = define_len_terminal(doc_after_import,terminal_name)
         x_insert = x_first_coordinate + len_terminal/2

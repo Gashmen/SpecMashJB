@@ -9,7 +9,8 @@ import start_ui as designer_ui
 import src.algoritms.new as new
 import src.csv_reader.csv_reader as csv_reader
 import src.dxf_creating.inputs_create as inputs_create
-
+import src.examples.create_inputs as input_create_examples
+import src.examples.create_inputs_check as input_create_expamles_check
 class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
 
     def __init__(self,save_path = None, path_to_csv = None, path_to_dxf = None,path_to_terminal_dxf = None):
@@ -20,7 +21,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                          path_to_terminal_dxf = path_to_terminal_dxf)
 
         self.dict_with_inputs_on_side = {"А": [], "Б": [], 'В': [], "Г": [], "Крышка": []}
-
+        self.dict_with_list_coordinates_on_side_for_dxf = {'А': {}, 'Б': {}, "В": {}, "Г": {}, "Крышка": {}}
         '''Заполнение Combobox'''
         #Заполнение типа ввода
         self.manufacturerInputsComboBox.currentTextChanged.connect(self.get_type_of_inputs)
@@ -72,7 +73,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         self.ComponentdeleteButton.clicked.connect(self.click_delete_button_components)
 
         #Получение информации
-        self.previewButton_leftMenu.clicked.connect(self.get_coordinates_for_side)#ТЕСТ, ДАЛЕЕ УДАЛИТЬ
+
 
         self.sideAListWidget.model().rowsInserted.connect(self.add_input_from_A_listwidget_to_dict)
         self.sideAListWidget.model().rowsRemoved.connect(self.add_input_from_A_listwidget_to_dict)
@@ -505,6 +506,22 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                     level_box_for_packing = value
                     dict_key_level_value_alldiametrs_in_level[[level, level_box]].append(value)
 
+    def delete_R_in_russian_input_name(self):
+        '''
+        Удаление расширенного ввода
+        {'А': ['ВЗ-Н25', 'ВЗ-Н25'], 'Б': ['ВЗ-Н25'], 'В': ['ВЗ-Н25', 'ВЗ-Н25'], 'Г': [], 'Крышка': []}
+        :return:
+        '''
+        if self.dict_with_inputs_on_side is not None:
+            for shell_side in self.dict_with_inputs_on_side.copy():
+                if self.dict_with_inputs_on_side[shell_side] != []:
+                    for count, russian_input_name in enumerate(self.dict_with_inputs_on_side[shell_side]):
+                        if '/Р' in russian_input_name:
+                            self.dict_with_inputs_on_side[shell_side][count] = russian_input_name.replace('/Р', '')
+                        else:
+                            continue
+
+
     def get_coordinates_for_side(self):
         '''
         Получение координат словарем self.dict_with_list_coordinates_on_side_for_dxf для построения в dxf
@@ -514,53 +531,74 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         'Г': {},
         'Крышка': {}}
         '''
-        if all(list(self.full_size_shell.values())):
-            self.dict_with_list_coordinates_on_side_for_dxf = {'А': {}, 'Б': {}, "В": {}, "Г": {}, "Крышка": {}}
-            size_of_shell = self.full_size_shell
+        self.delete_R_in_russian_input_name()#Удаляем расширенный ввод в названиях на русском
+        if hasattr(self, 'polyline_xy_coordinate_side'):
             for shell_side, list_with_inputs_on_rus_language in self.dict_with_inputs_on_side.items():
-                if (shell_side == 'А' or shell_side == 'В') and list(list_with_inputs_on_rus_language) != []:
+                if list_with_inputs_on_rus_language != []:
+                    #Получение координат области полилинии
+                    shell_side_dxf = \
+                        input_create_examples.define_side(side_russian_name=shell_side)
+                    main_surface = \
+                        input_create_examples.define_rectangle_size_for_inputs(
+                            dict_with_x_y_coordinates=self.polyline_xy_coordinate_side[shell_side_dxf])
+                    max_size = max(main_surface['xy1'][0] - main_surface['xy0'][0],
+                                   main_surface['xy1'][1] - main_surface['xy0'][1])
+                    min_size = min(main_surface['xy1'][0] - main_surface['xy0'][0],
+                                   main_surface['xy1'][1] - main_surface['xy0'][1])
+                    list_with_diametrs_float = [input_create_examples.return_diametr_from_name(dict_all_names_dict=self.all_name_inputs,
+                                                                                        name_input= rus_input_name) for rus_input_name in list_with_inputs_on_rus_language]
+                    list_on_side = [
+                        [rus_input_name, list_with_diametrs_float[count]]
+                        for count,rus_input_name in enumerate(list_with_inputs_on_rus_language)]
 
-                     # """УДАЛЯЕМ РАСШИРЕННЫЙ В ОБОЗНАЧЕНИЕ ВВОДА"""
-                    list_with_inputs_on_rus_language_without_P = list()
-                    for keykey, vz in enumerate(list_with_inputs_on_rus_language.copy()):
-                        if '/Р' in vz:
-                            list_with_inputs_on_rus_language_without_P.append(
-                                list_with_inputs_on_rus_language[keykey].replace('/Р', ''))
-                        else:
-                            list_with_inputs_on_rus_language_without_P.append(
-                                list_with_inputs_on_rus_language[keykey])
-                    """УДАЛЯЕМ РАСШИРЕННЫЙ В ОБОЗНАЧЕНИЕ ВВОДА"""
+                    dict_on_side = {count:i for count,i in enumerate(sorted(list_on_side,key=lambda x: x[1], reverse=True))}
+                    dict_on_side_copy = dict_on_side.copy()
+                    keynumber_for_delete_input = 0
+                    start_rectangle = 0
+                    while input_create_examples.checking_clear_inputs_dict(
+                            dict_with_inputs_name_and_diam=dict_on_side):
+                        ###
+                        #ЕСЛИ ПОМЕЩАЕТСЯ В ОДНУ ЛИНИЮ
+                        ###
+                        if input_create_expamles_check.check_possible_to_add_all_inputs_in_one_row(
+                                free_space=max_size-start_rectangle,
+                                list_with_diametrs_float=[list(i)[1] for i in dict_on_side.values()]):
+                            coordinate_input_one_row = input_create_expamles_check.set_coordinate_one_row(
+                                x_coordinate= input_create_expamles_check.calculate_x_one_row(
+                                    start_rectangle_for_paint=start_rectangle,diametr_float=list_with_diametrs_float[keynumber_for_delete_input]
+                                ),
+                                y_coordinate=main_surface['xy0'][1] + min_size/2
+                            )
 
-                    '''Расчет координат расположения кабельных вводов на стороне коробки'''
-                    calculate_inputs_in_one_row = \
-                        new.calculate_coordinates_for_inputs_in_one_row(
-                            x = size_of_shell['Внутренние размеры AB'],
-                            y = size_of_shell['Внутренняя высота коробки'],
-                            dict_with_diametrs = list_with_inputs_on_rus_language_without_P,
-                            all_name_inputs = self.all_name_inputs)
-                    # Если получается в одну строку все уместить, то умещаем и передаем в dict
-                    if calculate_inputs_in_one_row != {}:
-                        if len(list(calculate_inputs_in_one_row.keys())) == len(list_with_inputs_on_rus_language_without_P):
-                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side] = calculate_inputs_in_one_row
+                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side][keynumber_for_delete_input] = \
+                                {dict_on_side_copy[keynumber_for_delete_input][0]:coordinate_input_one_row}
+
+                            start_rectangle = input_create_expamles_check.find_start_of_rectangle_one_row(
+                                        start_rectangle=start_rectangle,
+                                        diametr_float=list_with_diametrs_float[keynumber_for_delete_input]
+                                    )
+
+                        #в конце удаление ввода
+                            input_create_examples.delete_input_from_dict(dict_with_inputs_name_and_diam=dict_on_side,
+                                                                         keynumber_for_delete_input=keynumber_for_delete_input)
+                            if dict_on_side == {}:
+                                free_space = max_size - start_rectangle + 5
+                                if max(list(self.dict_with_list_coordinates_on_side_for_dxf[shell_side].keys())) == 0:
+                                    for number in self.dict_with_list_coordinates_on_side_for_dxf[shell_side]:
+                                        for input_rus_name in self.dict_with_list_coordinates_on_side_for_dxf[shell_side][number]:
+                                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side][number][
+                                                input_rus_name][0] = main_surface['xy0'][0] + max_size/2
+                                else:
+                                    for number in self.dict_with_list_coordinates_on_side_for_dxf[shell_side]:
+                                        for input_rus_name in self.dict_with_list_coordinates_on_side_for_dxf[shell_side][number]:
+                                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side][number][input_rus_name][0]= \
+                                                self.dict_with_list_coordinates_on_side_for_dxf[shell_side][number][
+                                                    input_rus_name][0] + free_space * (number+1)/(max(list(self.dict_with_list_coordinates_on_side_for_dxf[shell_side].keys()))+2)
+                                    # continue
                         else:
-                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side] = {}
-                if (shell_side == 'Б' or shell_side == 'Г') and list(list_with_inputs_on_rus_language) != []:
-                    list_with_inputs_on_rus_language_without_P = list()
-                    for keykey, vz in enumerate(list_with_inputs_on_rus_language.copy()):
-                        if '/Р' in vz:
-                            list_with_inputs_on_rus_language_without_P.append(list_with_inputs_on_rus_language[keykey].replace('/Р', ''))
-                        else:
-                            list_with_inputs_on_rus_language_without_P.append(list_with_inputs_on_rus_language[keykey])
-                    calculate_inputs_in_one_row = \
-                        new.calculate_coordinates_for_inputs_in_one_row(size_of_shell['Внутренние размеры БГ'],
-                                                                        size_of_shell['Внутренняя высота коробки'],
-                                                                        list_with_inputs_on_rus_language_without_P, self.all_name_inputs)
-                    # Если получается в одну строку все уместить, то умещаем и передаем в dict
-                    if calculate_inputs_in_one_row != {}:
-                        if len(list(calculate_inputs_in_one_row.keys())) == len(list_with_inputs_on_rus_language_without_P):
-                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side] = calculate_inputs_in_one_row
-                        else:
-                            self.dict_with_list_coordinates_on_side_for_dxf[shell_side] = {}
+                            continue
+                        keynumber_for_delete_input = keynumber_for_delete_input + 1
+
             return self.dict_with_list_coordinates_on_side_for_dxf
 
 

@@ -1,10 +1,9 @@
-import create_inputs
+import src.examples.create_inputs as create_inputs
 
 def check_possible_to_add_all_inputs_in_one_row(free_space: float, list_with_diametrs_float: list):
     '''
     Если все ввода помещаются, и расстояние между ними = 5 мм, то значит их можно вставить
     :param free_space: max(x,y)
-    :param min_size: min(x,y)
     :param list_with_diametrs_float:[47.3,39.6]
     :return: True or False
     '''
@@ -36,10 +35,8 @@ def find_start_of_rectangle_one_row(start_rectangle:float = None, diametr_float:
         next_start_rectangle = diametr_float + 5
         return next_start_rectangle
     else:
-        next_start_rectangle = start_rectangle +  diametr_float + 5
+        next_start_rectangle = start_rectangle + diametr_float + 5
         return next_start_rectangle
-
-
 
 def calculate_x_one_row(start_rectangle_for_paint:float = None, diametr_float:float=None):
     '''
@@ -130,58 +127,47 @@ def build_main_dict(main_dict:dict, count:int,dict_one_row:dict[str:list[float,f
     else:
         raise ValueError('Уже добавлено значение под этим count   build_main_dict')
 
-
-dict_with_all_info_from_start = dict_with_inputs_name_and_diam.copy()
-count_input = 0
-main_dict = dict()
-level_dict = dict()
-
-
-
-while create_inputs.checking_clear_inputs_dict():
-    if check_possible_to_add_all_inputs_in_one_row():
-        if count_input == 0:
-            start_rectangle = 0
-        else:
-            start_rectangle = find_start_of_rectangle_one_row()
-
-        set_coordinate_one_row(y_coordinate=calculate_y_one_row(),
-                               x_coordinate= calculate_x_one_row())
-
-        set_input_name()
-        build_dict_one_row()
-        build_main_dict()
-        count_input+=1
-        dict_with_inputs_name_and_diam.pop(count_input,None)
-
-    else:
-        '''
-        Нужно сделать уровни для дальнейшей работы
-        level: int просто как count, но касающийся только width
-        
-        {level: {start_rectangle: x_coordinate,end_rectangle:x_coordinate + diam + 5, 0:{ВЗ-Н50:[x,y]},1:{ВЗ-Н40:[x,y]} }
-        
-        '''
-        start_rectangle = int()
-        if count_input == 0:
-            start_rectangle = 0
-            level_dict[count_input] = {'start_rectangle': start_rectangle}
+if __name__ == '__main__':
+    dict_with_all_info_from_start = dict_with_inputs_name_and_diam.copy()
+    count_input = 0
+    main_dict = dict()
+    level_dict = dict()
 
 
+
+    while create_inputs.checking_clear_inputs_dict():
+        if check_possible_to_add_all_inputs_in_one_row():
+            if count_input == 0:
+                start_rectangle = 0
+            else:
+                start_rectangle = find_start_of_rectangle_one_row()
+
+            set_coordinate_one_row(y_coordinate=calculate_y_one_row(),
+                                   x_coordinate= calculate_x_one_row())
+
+            set_input_name()
+            build_dict_one_row()
+            build_main_dict()
+            count_input+=1
+            dict_with_inputs_name_and_diam.pop(count_input,None)
 
         else:
-            start_rectangle = find_start_of_rectangle_many_row()
+            '''
+            Нужно сделать уровни для дальнейшей работы
+            level: int просто как count, но касающийся только width
+            
+            {level: {start_rectangle: x_coordinate,end_rectangle:x_coordinate + diam + 5, 0:{ВЗ-Н50:[x,y]},1:{ВЗ-Н40:[x,y]} }
+            
+            '''
+            start_rectangle = int()
+            if count_input == 0:
+                start_rectangle = 0
+                level_dict[count_input] = {'start_rectangle': start_rectangle}
 
 
 
-
-
-
-
-
-
-
-
+            else:
+                start_rectangle = find_start_of_rectangle_many_row()
 
 
 

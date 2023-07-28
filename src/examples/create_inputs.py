@@ -2,6 +2,8 @@ import ezdxf
 import random
 '''https://www.notion.so/di258/1-7ea0c37847564504aae770e297247076'''
 
+
+
 def checking_clear_inputs_dict(dict_with_inputs_name_and_diam:dict):
     '''
     Проверка, стал ли пустым список вставленных кабельных вводов
@@ -114,8 +116,12 @@ def define_rectangle_size_for_inputs(dict_with_x_y_coordinates: dict[str:list]):
     :return:{'xy0': [0,0], 'xy1': [10,40]}
     '''
     return_dict = {}
-    return_dict['xy0'] = [dict_with_x_y_coordinates['x'][0], dict_with_x_y_coordinates['y'][-2]]
-    return_dict['xy1'] = [dict_with_x_y_coordinates['x'][-1], dict_with_x_y_coordinates['y'][-1]]
+    if len(dict_with_x_y_coordinates['y']) == 2:#главное по высоте проверить
+        return_dict['xy0'] = [dict_with_x_y_coordinates['x'][0], dict_with_x_y_coordinates['y'][0]]
+        return_dict['xy1'] = [dict_with_x_y_coordinates['x'][1], dict_with_x_y_coordinates['y'][1]]
+    else:
+        return_dict['xy0'] = [dict_with_x_y_coordinates['x'][0], dict_with_x_y_coordinates['y'][-2]]
+        return_dict['xy1'] = [dict_with_x_y_coordinates['x'][-1], dict_with_x_y_coordinates['y'][-1]]
     return return_dict
 
 

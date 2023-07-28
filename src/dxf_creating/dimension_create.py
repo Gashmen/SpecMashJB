@@ -73,10 +73,10 @@ def calculate_max_up_coordinate(doc, insert_on_side_dict:dict,scale:float,topsid
 
             insert_with_min_left_coordinate = x_coordinate_inserts[min(list(x_coordinate_inserts.keys()))][0]
 
-            return (insert_with_min_left_coordinate.dxf.insert[0],insert_with_min_left_coordinate.dxf.insert[1] + max_len/scale)
+            return [insert_with_min_left_coordinate.dxf.insert[0],insert_with_min_left_coordinate.dxf.insert[1] + max_len/scale]
 
     else:
-        return (topside_extreme_lines['x_min'],topside_extreme_lines['y_max'])
+        return [topside_extreme_lines['x_min'],topside_extreme_lines['y_max']]
 
 
 def calculate_min_down_coordinate(doc, insert_on_side_dict:dict,scale:float,topside_extreme_lines:dict):
@@ -109,9 +109,9 @@ def calculate_min_down_coordinate(doc, insert_on_side_dict:dict,scale:float,tops
 
             insert_with_min_left_coordinate = x_coordinate_inserts[min(list(x_coordinate_inserts.keys()))][0]
 
-            return (insert_with_min_left_coordinate.dxf.insert[0],insert_with_min_left_coordinate.dxf.insert[1] - max_len/scale)
+            return [insert_with_min_left_coordinate.dxf.insert[0],insert_with_min_left_coordinate.dxf.insert[1] - max_len/scale]
     else:
-        return (topside_extreme_lines['x_min'],topside_extreme_lines['y_min'])
+        return [topside_extreme_lines['x_min'],topside_extreme_lines['y_min']]
 
 def calculate_min_left_coordinate(doc, insert_on_side_dict:dict,scale:float,topside_extreme_lines:dict):
     '''
@@ -144,9 +144,9 @@ def calculate_min_left_coordinate(doc, insert_on_side_dict:dict,scale:float,tops
 
             insert_with_min_left_coordinate = y_coordinate_inserts[min(list(y_coordinate_inserts.keys()))][0]
 
-            return (insert_with_min_left_coordinate.dxf.insert[0] - max_len/scale,insert_with_min_left_coordinate.dxf.insert[1])
+            return [insert_with_min_left_coordinate.dxf.insert[0] - max_len/scale,insert_with_min_left_coordinate.dxf.insert[1]]
     else:
-        return (topside_extreme_lines['x_min'],topside_extreme_lines['y_min'])
+        return [topside_extreme_lines['x_min'],topside_extreme_lines['y_min']]
 
 def calculate_max_right_coordinate(doc, insert_on_side_dict:dict,scale:float,topside_extreme_lines:dict):
     '''
@@ -179,10 +179,10 @@ def calculate_max_right_coordinate(doc, insert_on_side_dict:dict,scale:float,top
 
             insert_with_max_right_coordinate = y_coordinate_inserts[max(list(y_coordinate_inserts.keys()))][0]
 
-            return (insert_with_max_right_coordinate.dxf.insert[0] + max_len/scale,insert_with_max_right_coordinate.dxf.insert[1])
+            return [insert_with_max_right_coordinate.dxf.insert[0] + max_len/scale,insert_with_max_right_coordinate.dxf.insert[1]]
 
     else:
-        return (topside_extreme_lines['x_max'],topside_extreme_lines['y_min'])
+        return [topside_extreme_lines['x_max'],topside_extreme_lines['y_min']]
 
 if __name__ == '__main__':
     doc = ezdxf.readfile('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf')

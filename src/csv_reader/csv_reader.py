@@ -147,34 +147,34 @@ def create_list_with_fullnameinputs(dict_with_manufacturer:dict) ->dict:
             if dict_with_manufacturer['Кабельные вводы']['Доп маркировка'][number] == '-':
                 if ',' in dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number]:
                     list_full_name[check_type + str(dict_with_manufacturer['Кабельные вводы']['Резьба'][number])] =\
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',','.'))+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',','.'))+0
                 else:
                     list_full_name[check_type + str(dict_with_manufacturer['Кабельные вводы']['Резьба'][number])] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+0
             elif dict_with_manufacturer['Кабельные вводы']['Доп маркировка'][number] == 'Р':
                 if ',' in dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number]:
                     list_full_name[f'{check_type}{str(dict_with_manufacturer["Кабельные вводы"]["Резьба"][number])}/{dict_with_manufacturer["Кабельные вводы"]["Доп маркировка"][number]}'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+0
                 else:
                     list_full_name[f'{check_type}{str(dict_with_manufacturer["Кабельные вводы"]["Резьба"][number])}/{dict_with_manufacturer["Кабельные вводы"]["Доп маркировка"][number]}'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+0
             else:
                 if ',' in dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number]:
                     list_full_name[f'{check_type}{str(dict_with_manufacturer["Кабельные вводы"]["Резьба"][number])}{dict_with_manufacturer["Кабельные вводы"]["Доп маркировка"][number]}'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+0
                 else:
                     list_full_name[f'{check_type}{str(dict_with_manufacturer["Кабельные вводы"]["Резьба"][number])}{dict_with_manufacturer["Кабельные вводы"]["Доп маркировка"][number]}'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+0
         if 'ВЗ-Н-МР' == check_type:
             if ',' in dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number]:
                 list_full_name[check_type[:-3] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[0] +
                                check_type[-3:] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[1]] = \
-                    float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+10
+                    float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+0
             else:
                 list_full_name[
                     check_type[:-3] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[0] +
                     check_type[-3:] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[1]] = \
-                    float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+10
+                    float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+0
 
         if 'ВЗ-Н-Т' == check_type:
             if ' ' not in dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[1]:
@@ -182,24 +182,24 @@ def create_list_with_fullnameinputs(dict_with_manufacturer:dict) ->dict:
                     list_full_name[
                         check_type[:-3] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[0]
                         + check_type[-3:] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[1]+'G(B)'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+0
                 else:
                     list_full_name[
                         check_type[:-3] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[0]
                         + check_type[-3:] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[1]+'G(B)'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+0
             else:
                 if ',' in dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number]:
                     list_full_name[
                         check_type[:-3] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[0]
                         + check_type[-3:] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[1].replace(' ','.') + 'G(B)'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number].replace(',', '.'))+0
                 else:
                     list_full_name[
                         check_type[:-3] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[0]
                         + check_type[-3:] + dict_with_manufacturer['Кабельные вводы']['Резьба'][number].split(';')[
                             1].replace(' ', '.') + 'G(B)'] = \
-                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+10
+                        float(dict_with_manufacturer['Кабельные вводы']['Размер под ключ D'][number])+0
     return list_full_name
 
 def give_full_name_and_dict_for_input(dict_with_manufacturer:dict, key_input:int) -> str :
