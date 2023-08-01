@@ -199,8 +199,10 @@ class DxfCreator(terminal_ui.TerminalPage):
         '''Создаем размер'''
 
         insert_topside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_topside"]')[0]
-        extreme_lines_topside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_topside)
 
+        extreme_lines_topside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_topside)
+        insert_upside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_upside"]')[0]
+        extreme_lines_upside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_upside)
         insert_on_topside = dimension_create.define_inputs_on_topside(doc=self.doc_new,
                                                                       shell_name=self.shell_name,
                                                                       extreme_lines_topside_after_scale=extreme_lines_topside_after_scale)
@@ -227,22 +229,35 @@ class DxfCreator(terminal_ui.TerminalPage):
         point_for_horizontal_dimension['min_down'][0] = min_x_for_vertical_dim
         point_for_horizontal_dimension['max_up'][0] = min_x_for_vertical_dim
 
-        dim = self.doc_new.modelspace().add_aligned_dim(
+        # dim = self.doc_new.modelspace().add_aligned_dim(
+        #     p1=tuple(point_for_horizontal_dimension['min_down']),
+        #     p2=tuple(point_for_horizontal_dimension['max_up']),
+        #     dimstyle='EZDXF',
+        #     distance=(extreme_lines_topside_after_scale['x_max']-extreme_lines_topside_after_scale['x_min'])/2 +
+        #              (self.input_max_len/self.scale_drawing)/2)
+        dim = self.doc_new.modelspace().add_linear_dim(
+            angle=90,
             p1=tuple(point_for_horizontal_dimension['min_down']),
             p2=tuple(point_for_horizontal_dimension['max_up']),
             dimstyle='EZDXF',
-            distance=(extreme_lines_topside_after_scale['x_max']-extreme_lines_topside_after_scale['x_min'])/2 +
-                     (self.input_max_len/self.scale_drawing)/2
-                                                        )
-        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * 2, 2)}'
+            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/3,point_for_horizontal_dimension['max_right'][0]- self.input_max_len/3))
+
+        dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * self.scale_drawing, 0)}'
 
         dim_horizontal = self.doc_new.modelspace().add_linear_dim(
-            base=(point_for_horizontal_dimension['max_right'][0],point_for_horizontal_dimension['min_left'][0]),
+            base=(point_for_horizontal_dimension['max_right'][0]+self.input_max_len/3,point_for_horizontal_dimension['min_left'][0]+self.input_max_len/3),
             p1=point_for_horizontal_dimension['min_left'],
             p2=point_for_horizontal_dimension['max_right'],
             dimstyle='EZDXF')
-        dim_horizontal.dimension.dxf.text = f'{round(dim_horizontal.dimension.get_measurement() * 2, 2)}'
+        dim_horizontal.dimension.dxf.text = f'{round(dim_horizontal.dimension.get_measurement() * self.scale_drawing, 0)}'
 
+        dim_height = self.doc_new.modelspace().add_linear_dim(
+            angle=90,
+            p1=(extreme_lines_upside_after_scale['x_min'],extreme_lines_upside_after_scale['y_max']),
+            p2=(extreme_lines_upside_after_scale['x_min'],extreme_lines_upside_after_scale['y_min']),
+            dimstyle='EZDXF',
+            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/3,point_for_horizontal_dimension['max_right'][0]- self.input_max_len/3))
+        dim_height.dimension.dxf.text = f'{round(dim_height.dimension.get_measurement() * self.scale_drawing, 0)}'
     def create_border(self):
         '''Создает рамку относительно '''
         insert_rightside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_rightside"]')[0]
@@ -259,16 +274,31 @@ class DxfCreator(terminal_ui.TerminalPage):
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len/self.scale_drawing)
 
+
+
     def test_write(self):
         self.manufactureComboboxWidget_shellpage.setCurrentText('ВЗОР')
         self.safefactortypeCombobox_shellpage.setCurrentText('Exe оболочки')
         self.serialCombobox_shellpage.setCurrentText('ВП')
-        self.sizeCombobox_shellpage.setCurrentText('161610')
+        self.sizeCombobox_shellpage.setCurrentText('262512')
         self.gas_mark_RadioButton_shellpage.setChecked(True)
         self.gasdustoreComboBox_shellpage.setCurrentText('1Ex e IIC')
         self.temperature_class_comboBox_shellpage.setCurrentText('T4')
         self.manufacturerInputsComboBox.setCurrentText('ВЗОР')
         self.inputtypeComboBox.setCurrentText('ВЗ-Н')
+
+        self.sideAListWidget.addItem('ВЗ-Н25')
+        self.sideAListWidget.addItem('ВЗ-Н32')
+
+        self.sideBListWidget.addItem('ВЗ-Н16')
+        self.sideBListWidget.addItem('ВЗ-Н12')
+
+        self.sideVListWidget.addItem('ВЗ-Н32')
+        self.sideVListWidget.addItem('ВЗ-Н16')
+
+        self.sideGListWidget.addItem('ВЗ-Н12')
+        self.sideGListWidget.addItem('ВЗ-Н16')
+
         self.handwrite_inputspageComboBox.setCurrentText('ВЗ-Н25')
         self.siteASpinBox.setValue(2)
         self.siteBSpinBox.setValue(1)
@@ -379,7 +409,6 @@ class DxfCreator(terminal_ui.TerminalPage):
                     startstart_row_int = max_row
 
             self.save_doc_bom()
-
         else:
             self.error_window.add_error('Не выбран путь для базы цен и оборудования xlsx')
 

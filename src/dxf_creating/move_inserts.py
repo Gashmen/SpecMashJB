@@ -172,7 +172,31 @@ def move_all_blocks_vertical_after_add_border(doc,shell_name:str,border_name='Bo
     downside_insert = doc.modelspace().query(f'INSERT[name=="{shell_name}_downside"]')[0]
     downside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert = downside_insert)
 
-    withoutcap_insert = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')]
+    withoutcap_insert_topside = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')
+                                 if (rightside_insert.dxf.insert[0] < insert.dxf.insert[0]< leftside_insert.dxf.insert[0]) and
+                                    (upside_insert.dxf.insert[1] < insert.dxf.insert[1]< downside_insert.dxf.insert[1])]
+
+    withoutcap_insert_rightside = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')
+                                 if (insert.dxf.insert[0] < rightside_insert.dxf.insert[0]) and
+                                 (upside_insert.dxf.insert[1] < insert.dxf.insert[1] < downside_insert.dxf.insert[1])]
+
+    withoutcap_insert_leftside = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')
+                                   if (leftside_insert.dxf.insert[0] < insert.dxf.insert[0]< cutside_insert.dxf.insert[0]) and
+                                   (upside_insert.dxf.insert[1] < insert.dxf.insert[1] <downside_insert.dxf.insert[1])]
+
+    withoutcap_insert_cutside = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')
+                                  if (cutside_insert.dxf.insert[0] < insert.dxf.insert[0] < withoutside_insert.dxf.insert[0]) and
+                                  (upside_insert.dxf.insert[1] < insert.dxf.insert[1] <downside_insert.dxf.insert[1])]
+
+    withoutcap_insert_upside = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')
+                                 if (rightside_insert.dxf.insert[0] < insert.dxf.insert[0]< leftside_insert.dxf.insert[0]) and
+                                    (insert.dxf.insert[1]< upside_insert.dxf.insert[1])]
+
+    withoutcap_insert_downside = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withoutcap')
+                                 if (rightside_insert.dxf.insert[0] < insert.dxf.insert[0]< leftside_insert.dxf.insert[0]) and
+                                    (insert.dxf.insert[1] > downside_insert.dxf.insert[1])]
+
+
     withcap_insert = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('withcap')]
 
     viewsides_insert = [insert for insert in doc.modelspace().query('INSERT') if insert.dxf.name.endswith('viewside')]
@@ -218,10 +242,36 @@ def move_all_blocks_vertical_after_add_border(doc,shell_name:str,border_name='Bo
     withoutside_new_insert_y = withoutside_insert.dxf.insert[1] + delta_y_length_max * (2 / 4)
     withoutside_insert.dxf.insert = (withoutside_new_insert_x,withoutside_new_insert_y)
 
-    for input_insert_without in withoutcap_insert:
-        input_insert_without_new_insert_x = input_insert_without.dxf.insert[0] + delta_x_length_max*(2/6)
-        input_insert_without_new_insert_y = input_insert_without.dxf.insert[1] + delta_y_length_max*(2/4)
-        input_insert_without.dxf.insert = (input_insert_without_new_insert_x,input_insert_without_new_insert_y)
+    for input_insert_without_rightside in withoutcap_insert_rightside:
+        input_insert_without_new_insert_x = input_insert_without_rightside.dxf.insert[0] + delta_x_length_max * (1 / 6)
+        input_insert_without_new_insert_y = input_insert_without_rightside.dxf.insert[1] + delta_y_length_max * (2 / 4)
+        input_insert_without_rightside.dxf.insert = (input_insert_without_new_insert_x, input_insert_without_new_insert_y)
+
+    for input_insert_without_topside in withoutcap_insert_topside:
+        input_insert_without_new_insert_x = input_insert_without_topside.dxf.insert[0] + delta_x_length_max*(2/6)
+        input_insert_without_new_insert_y = input_insert_without_topside.dxf.insert[1] + delta_y_length_max*(2/4)
+        input_insert_without_topside.dxf.insert = (input_insert_without_new_insert_x,input_insert_without_new_insert_y)
+
+    for input_insert_without_leftside in withoutcap_insert_leftside:
+        input_insert_without_new_insert_x = input_insert_without_leftside.dxf.insert[0] + delta_x_length_max * (3 / 6)
+        input_insert_without_new_insert_y = input_insert_without_leftside.dxf.insert[1] + delta_y_length_max * (2 / 4)
+        input_insert_without_leftside.dxf.insert = (input_insert_without_new_insert_x, input_insert_without_new_insert_y)
+
+    for input_insert_without_cutside in withoutcap_insert_cutside:
+        input_insert_without_new_insert_x = input_insert_without_cutside.dxf.insert[0] + delta_x_length_max * (4 / 6)
+        input_insert_without_new_insert_y = input_insert_without_cutside.dxf.insert[1] + delta_y_length_max * (2 / 4)
+        input_insert_without_cutside.dxf.insert = (input_insert_without_new_insert_x, input_insert_without_new_insert_y)
+
+    for input_insert_without_upside in withoutcap_insert_upside:
+        input_insert_without_new_insert_x = input_insert_without_upside.dxf.insert[0] + delta_x_length_max*(2/6)
+        input_insert_without_new_insert_y = input_insert_without_upside.dxf.insert[1] + delta_y_length_max*(1/4)
+        input_insert_without_upside.dxf.insert = (input_insert_without_new_insert_x,input_insert_without_new_insert_y)
+
+    for input_insert_without_downside in withoutcap_insert_downside:
+        input_insert_without_new_insert_x = input_insert_without_downside.dxf.insert[0] + delta_x_length_max*(2/6)
+        input_insert_without_new_insert_y = input_insert_without_downside.dxf.insert[1] + delta_y_length_max*(3/4)
+        input_insert_without_downside.dxf.insert = (input_insert_without_new_insert_x,input_insert_without_new_insert_y)
+
 
     for input_insert_with in withcap_insert:
         input_insert_with_new_insert_x = input_insert_with.dxf.insert[0] + delta_x_length_max * (5 / 6)

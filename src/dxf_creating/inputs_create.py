@@ -152,9 +152,25 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
 
     insert_topside = doc.modelspace().query(f'INSERT[name == "{shell_name}_topside"]')[0]
     topside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_topside)
+    inputs_insert_on_topside = {'_rightside':{},'_leftside':{},'_downside':{},'_upside':{}}
 
     insert_withoutcapside = doc.modelspace().query(f'INSERT[name == "{shell_name}_withoutcapside"]')[0]
     withoutcapside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_withoutcapside)
+
+    insert_downside = doc.modelspace().query(f'INSERT[name == "{shell_name}_downside"]')[0]
+    downside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_downside)
+
+    insert_upside = doc.modelspace().query(f'INSERT[name == "{shell_name}_upside"]')[0]
+    upside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_upside)
+
+    insert_rightside = doc.modelspace().query(f'INSERT[name == "{shell_name}_rightside"]')[0]
+    rightside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_rightside)
+
+    insert_leftside = doc.modelspace().query(f'INSERT[name == "{shell_name}_leftside"]')[0]
+    leftside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_leftside)
+
+    insert_cutside = doc.modelspace().query(f'INSERT[name == "{shell_name}_cutside"]')[0]
+    cutside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_leftside)
 
 
     for side in sides:
@@ -163,7 +179,7 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                 input_name = inputs_insert.dxf.name.split('_')[0]
                 if side == '_upside':
                     input_downside_on_topside = doc.modelspace().add_blockref(
-                                                                   name=input_name  + '_withoutcap',
+                                                                   name=input_name + '_withoutcap',
                                                                    insert=(list(inputs_insert.dxf.insert)[0],
                                                                            topside_extreme_lines['y_max']))
                     input_downside_on_topside.dxf.rotation = 180
@@ -174,6 +190,8 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                                                                                 withoutcapside_extreme_lines['y_max']))
                     input_downside_on_withoutcapside.dxf.rotation = 180
 
+                    inputs_insert_height = upside_extreme_lines['y_max'] - inputs_insert.dxf.insert[1]
+                    inputs_insert_on_topside[side][input_downside_on_topside] = inputs_insert_height
 
                 elif side == '_downside':
                     input_upside_on_topside = doc.modelspace().add_blockref(name=input_name  + '_withoutcap',
@@ -186,6 +204,8 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                                                                          withoutcapside_extreme_lines['y_min']))
                     input_upside_on_withoutcapside.dxf.rotation = 0
 
+                    inputs_insert_height = inputs_insert.dxf.insert[1] - downside_extreme_lines['y_min']
+                    inputs_insert_on_topside[side][input_upside_on_topside] = inputs_insert_height
 
                 elif side == '_rightside':
                     input_rightside_on_topside = doc.modelspace().add_blockref(name=input_name  + '_withoutcap',
@@ -199,6 +219,9 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                                                                                            1]))
                     input_rightside_on_withoutcapside.dxf.rotation = 90
 
+                    inputs_insert_height = rightside_extreme_lines['x_max'] - inputs_insert.dxf.insert[0]
+                    inputs_insert_on_topside[side][input_rightside_on_topside] = inputs_insert_height
+
 
                 elif side == '_leftside':
                     input_leftside_on_topside = doc.modelspace().add_blockref(name=input_name  + '_withoutcap',
@@ -210,4 +233,83 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                                                                    insert=(withoutcapside_extreme_lines['x_min'],
                                                                            list(inputs_insert.dxf.insert)[1]))
                     input_leftside_on_withoutcapside.dxf.rotation = 270
+
+                    inputs_insert_height = inputs_insert.dxf.insert[0] - leftside_extreme_lines['x_min']
+                    inputs_insert_on_topside[side][input_leftside_on_topside] = inputs_insert_height
+
+
+
+    #Обрабатываем inputs_insert_on_topside
+    for side in inputs_insert_on_topside.copy():
+        if side == '_upside' or side == '_downside':
+            inputs_insert_on_topside[side] = dict(
+                sorted(inputs_insert_on_topside[side].items(), key=lambda x: x[0].dxf.insert[0], reverse=False))
+            for input_on_topside in inputs_insert_on_topside[side].keys():
+                input_on_rightside = doc.modelspace().add_blockref(
+                    name=input_on_topside.dxf.name,
+                    insert=(rightside_extreme_lines['x_max'] - inputs_insert_on_topside[side][input_on_topside],
+                            input_on_topside.dxf.insert[1])
+                )
+                if side == '_upside':
+                    input_on_rightside.dxf.rotation = 180
+                else:
+                    input_on_rightside.dxf.rotation = 0
+            inputs_insert_on_topside[side] = dict(
+                sorted(inputs_insert_on_topside[side].items(), key=lambda x: x[0].dxf.insert[0], reverse=True))
+            for input_on_topside in inputs_insert_on_topside[side].keys():
+                input_on_leftside = doc.modelspace().add_blockref(
+                    name=input_on_topside.dxf.name,
+                    insert=(leftside_extreme_lines['x_min'] + inputs_insert_on_topside[side][input_on_topside],
+                            input_on_topside.dxf.insert[1])
+                )
+                if side == '_upside':
+                    input_on_leftside.dxf.rotation = 180
+                else:
+                    input_on_leftside.dxf.rotation = 0
+
+                # input_on_cutside = doc.modelspace().add_blockref(
+                #     name=input_on_topside.dxf.name,
+                #     insert=(cutside_extreme_lines['x_max'] + inputs_insert_on_topside[side][input_on_topside],
+                #             input_on_topside.dxf.insert[1]))
+
+
+        if side == '_leftside' or side == '_rightside':
+            inputs_insert_on_topside[side] = dict(
+                sorted(inputs_insert_on_topside[side].items(), key=lambda x: x[0].dxf.insert[1], reverse=False))
+            for input_on_topside in inputs_insert_on_topside[side].keys():
+                input_on_upside = doc.modelspace().add_blockref(
+                    name=input_on_topside.dxf.name,
+                    insert=(input_on_topside.dxf.insert[0],
+                            upside_extreme_lines['y_max'] - inputs_insert_on_topside[side][input_on_topside])
+                )
+                if side == '_leftside':
+                    input_on_upside.dxf.rotation = 270
+                else:
+                    input_on_upside.dxf.rotation = 90
+            inputs_insert_on_topside[side] = dict(
+                sorted(inputs_insert_on_topside[side].items(), key=lambda x: x[0].dxf.insert[1], reverse=True))
+            for input_on_topside in inputs_insert_on_topside[side].keys():
+                input_on_downside = doc.modelspace().add_blockref(
+                    name=input_on_topside.dxf.name,
+                    insert=(input_on_topside.dxf.insert[0],
+                            downside_extreme_lines['y_min'] + inputs_insert_on_topside[side][input_on_topside])
+                )
+                if side == '_leftside':
+                    input_on_downside.dxf.rotation = 270
+                else:
+                    input_on_downside.dxf.rotation = 90
+
+
+
+
+
+
+def create_inputs_on_rightside_leftside(doc,shell_name:str):
+    '''
+    Создаем inputs вокруг блока topside и вокруг блока withoutcapside
+    :param doc:
+    :param shell_name: VP.161610
+    :return:doc_new
+    '''
+
 
