@@ -170,8 +170,7 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
     leftside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_leftside)
 
     insert_cutside = doc.modelspace().query(f'INSERT[name == "{shell_name}_cutside"]')[0]
-    cutside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_leftside)
-
+    cutside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_cutside)
 
     for side in sides:
         for inputs_insert in doc.modelspace().query(f'INSERT[name == "{shell_name}{side}"]')[0].virtual_entities():
@@ -271,7 +270,22 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
                 #     name=input_on_topside.dxf.name,
                 #     insert=(cutside_extreme_lines['x_max'] + inputs_insert_on_topside[side][input_on_topside],
                 #             input_on_topside.dxf.insert[1]))
+            inputs_insert_on_topside[side] = dict(
+                sorted(inputs_insert_on_topside[side].items(), key=lambda x: x[0].dxf.insert[0], reverse=True))
+            for i in inputs_insert_on_topside[side].copy():
+                if i.dxf.insert[0] < insert_topside.dxf.insert[0]:
+                    inputs_insert_on_topside[side].pop(i)
 
+            for input_on_topside in inputs_insert_on_topside[side].keys():
+                input_on_leftside = doc.modelspace().add_blockref(
+                    name=input_on_topside.dxf.name,
+                    insert=(cutside_extreme_lines['x_min'] + inputs_insert_on_topside[side][input_on_topside],
+                            input_on_topside.dxf.insert[1])
+                )
+                if side == '_upside':
+                    input_on_leftside.dxf.rotation = 180
+                else:
+                    input_on_leftside.dxf.rotation = 0
 
         if side == '_leftside' or side == '_rightside':
             inputs_insert_on_topside[side] = dict(
@@ -301,15 +315,53 @@ def create_inputs_on_topside_withoutcapside(doc,shell_name:str):
 
 
 
-
-
-
-def create_inputs_on_rightside_leftside(doc,shell_name:str):
+def create_needed_elements_cutside(doc,shell_name,max_input_length):
     '''
-    Создаем inputs вокруг блока topside и вокруг блока withoutcapside
+    Создаем обозначение разреза
     :param doc:
     :param shell_name: VP.161610
     :return:doc_new
     '''
 
+    insert_topside = doc.modelspace().query(f'INSERT[name == "{shell_name}_topside"]')[0]
+    topside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_topside)
 
+    insert_downside = doc.modelspace().query(f'INSERT[name == "{shell_name}_downside"]')[0]
+    downside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_downside)
+
+    insert_upside = doc.modelspace().query(f'INSERT[name == "{shell_name}_upside"]')[0]
+    upside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_upside)
+
+    insert_cutside = doc.modelspace().query(f'INSERT[name == "{shell_name}_cutside"]')[0]
+    cutside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_cutside)
+
+    list_inserts_top = []
+    list_inserts_bottom = []
+
+    for insert_inputs in doc.modelspace().query(f'INSERT'):
+        if shell_name not in insert_inputs.dxf.name:
+            x_input = insert_inputs.dxf.insert[0]
+            y_input = insert_inputs.dxf.insert[1]
+            if (insert_topside.dxf.insert[0] < x_input < topside_extreme_lines['x_max']) and\
+                (topside_extreme_lines['y_max'] <= y_input < downside_extreme_lines['y_min']):
+                list_inserts_top.append(insert_inputs)
+            elif (insert_topside.dxf.insert[0] < x_input < topside_extreme_lines['x_max']) and\
+                (upside_extreme_lines['y_max'] < y_input <= topside_extreme_lines['y_min']):
+                list_inserts_bottom.append(insert_inputs)
+
+
+    list_inserts_top = sorted(list_inserts_top, key=lambda x: x.dxf.insert[0], reverse=False)
+    list_inserts_bottom = sorted(list_inserts_bottom, key=lambda x: x.dxf.insert[0], reverse=False)
+
+    for input_on_topside in list_inserts_top:
+        input_on_rightside = doc.modelspace().add_blockref(
+            name=input_on_topside.dxf.name,
+            insert=(rightside_extreme_lines['x_max'] - inputs_insert_on_topside[side][input_on_topside],
+                    input_on_topside.dxf.insert[1])
+        )
+        if side == '_upside':
+            input_on_rightside.dxf.rotation = 180
+
+
+    insert_cutside = doc.modelspace().query(f'INSERT[name == "{shell_name}_cutside"]')[0]
+    cutside_extreme_lines = shell_create.define_extreme_lines_in_insert(insert_leftside)

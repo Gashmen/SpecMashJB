@@ -13,7 +13,7 @@ from src.dxf_creating import move_inserts
 from src.dxf_creating import dimension_create
 from src.dxf_creating import border_create
 from src.dxf_creating import BOM_create
-
+from src.dxf_creating import cutside_works
 class DxfCreator(terminal_ui.TerminalPage):
 
     def __init__(self,
@@ -48,7 +48,7 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.siteASpinBox.setValue(2)
         self.siteBSpinBox.setValue(1)
         self.siteVSpinBox.setValue(2)
-        self.test_write()
+        # self.test_write()
 
 
         '''Заполнение options'''
@@ -166,6 +166,8 @@ class DxfCreator(terminal_ui.TerminalPage):
                 inputs_create.create_inputs_on_topside_withoutcapside(doc=self.doc_new,
                                                                       shell_name=self.shell_name)
 
+
+
     def create_terminals_dxf_after_DIN_REYKA(self):
         '''Добавление клемм на DIN рейку'''
         if hasattr(self,'doc_new'):
@@ -207,8 +209,6 @@ class DxfCreator(terminal_ui.TerminalPage):
                                                                       shell_name=self.shell_name,
                                                                       extreme_lines_topside_after_scale=extreme_lines_topside_after_scale)
 
-
-
         point_for_horizontal_dimension = \
             {'max_up': dimension_create.calculate_max_up_coordinate(
                 doc=self.doc_new,insert_on_side_dict=insert_on_topside, scale=self.scale_drawing,
@@ -240,12 +240,16 @@ class DxfCreator(terminal_ui.TerminalPage):
             p1=tuple(point_for_horizontal_dimension['min_down']),
             p2=tuple(point_for_horizontal_dimension['max_up']),
             dimstyle='EZDXF',
-            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/3,point_for_horizontal_dimension['max_right'][0]- self.input_max_len/3))
+            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/self.scale_drawing,
+                  point_for_horizontal_dimension['max_right'][0]- self.input_max_len/self.scale_drawing))
+
 
         dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * self.scale_drawing, 0)}'
 
         dim_horizontal = self.doc_new.modelspace().add_linear_dim(
-            base=(point_for_horizontal_dimension['max_right'][0]+self.input_max_len/3,point_for_horizontal_dimension['min_left'][0]+self.input_max_len/3),
+            base=(point_for_horizontal_dimension['min_left'][0],
+                  extreme_lines_topside_after_scale['y_min'] - 3 * self.input_max_len/self.scale_drawing),
+                  #point_for_horizontal_dimension['min_down'][0] - 3 * self.input_max_len/self.scale_drawing),
             p1=point_for_horizontal_dimension['min_left'],
             p2=point_for_horizontal_dimension['max_right'],
             dimstyle='EZDXF')
@@ -256,8 +260,13 @@ class DxfCreator(terminal_ui.TerminalPage):
             p1=(extreme_lines_upside_after_scale['x_min'],extreme_lines_upside_after_scale['y_max']),
             p2=(extreme_lines_upside_after_scale['x_min'],extreme_lines_upside_after_scale['y_min']),
             dimstyle='EZDXF',
-            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/3,point_for_horizontal_dimension['max_right'][0]- self.input_max_len/3))
+            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/3, point_for_horizontal_dimension['max_right'][0]- self.input_max_len/3))
         dim_height.dimension.dxf.text = f'{round(dim_height.dimension.get_measurement() * self.scale_drawing, 0)}'
+
+        cutside_works.add_label_cut(doc=self.doc_new,
+                                    shell_name=self.shell_name,
+                                    max_len_input=self.input_max_len / self.scale_drawing,
+                                    scale=self.scale_drawing)
     def create_border(self):
         '''Создает рамку относительно '''
         insert_rightside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_rightside"]')[0]
@@ -273,7 +282,6 @@ class DxfCreator(terminal_ui.TerminalPage):
         move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
                                                                shell_name=self.shell_name,
                                                                input_max_len=self.input_max_len/self.scale_drawing)
-
 
 
     def test_write(self):

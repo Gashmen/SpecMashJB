@@ -90,9 +90,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         self.ComponentsListWidget.model().rowsInserted.connect(self.add_input_from_components_listwidget_to_dict)
         self.ComponentsListWidget.model().rowsRemoved.connect(self.add_input_from_components_listwidget_to_dict)
 
-
-
-
     '''ФУНКЦИИ'''
     def get_type_of_inputs(self):
         '''Добавляет типы кабельнных вводов после выбора производителя кабельных вводов'''

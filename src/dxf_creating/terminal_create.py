@@ -198,8 +198,18 @@ def create_terminal_on_cutside(doc_after_terminal, list_terminal_blocks:list[str
 
     cutside_insert = doc_after_terminal.modelspace().query(f'INSERT[name=="{shell_name}_cutside"]')[0]
 
+    withoutcapside_insert = doc_after_terminal.modelspace().query(f'INSERT[name=="{shell_name}_withoutcapside"]')[0]
+    withoutcapside_extreme_lines = shell_create.define_extreme_lines_in_insert(withoutcapside_insert)
+
+    list_terminal_blocks = [insert_terminal.dxf.name for insert_terminal in doc_after_terminal.modelspace().query(f'INSERT')
+                            if (insert_terminal.dxf.insert[0] > withoutcapside_insert.dxf.insert[0]) and\
+                            (withoutcapside_extreme_lines['y_min'] < insert_terminal.dxf.insert[1] < withoutcapside_extreme_lines['y_max'])
+                            if ('WHITE' in insert_terminal.dxf.name or 'BLUE' in insert_terminal.dxf.name or 'GREEN' in insert_terminal.dxf.name)]
+
     coordinate_din_in_cutside = doc_after_terminal.blocks[
                                    f'{shell_name}_cutside'].query('INSERT[name=="35_DIN_CUTSIDE"]')[0].dxf.insert
+
+
 
     for terminal in list_terminal_blocks.copy()[::-1]:
         if terminal != 'Terminal_end_plate_frontside_2.5':

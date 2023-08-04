@@ -3,12 +3,15 @@ from ezdxf.addons import Importer
 
 
 def clear_base_doc_for_new(dxfbase_path:str, dict_for_save_blocks_before_draw:dict):
-    '''Удаляем все ненужное из dxf_base
+    '''
+    Удаляем все ненужное из dxf_base
     :dxfbase_path : C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\DXF_BASE.dxf
     :dict_for_save_blocks_before_draw: {'shell':['VP.121210_cutside',...],
                                         'terminal':['SUPU_SCREW_BLUE_16',...],
                                         'inputs':['VZ-N25_exe,...']}
     '''
+    dict_for_save_blocks_before_draw['cutside'] = ['cut_name_top','cut_name_bottom','cut_name_main']
+
     doc_dxfbase = ezdxf.readfile(dxfbase_path)
 
     doc_dxfbase_for_del = ezdxf.readfile(dxfbase_path)
