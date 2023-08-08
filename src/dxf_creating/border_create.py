@@ -102,3 +102,37 @@ def write_rudesdata(attrib_rudesdata, rudesdata:str):
     if attrib_rudesdata.dxf.tag == 'RUDESDATA':
         if rudesdata != None:
                 attrib_rudesdata.dxf.text = rudesdata
+
+def write_rudesdata(attrib_rudesdata, rudesdata:str):
+    '''
+    Заполнение аттрибута scale
+    :param attrib_company: В цикле проверки аттрибутов передается аттрибут
+    :param companylineedit_text: Значение str от companylineedit
+    :return:
+    '''
+    if attrib_rudesdata.dxf.tag == 'RUDESDATA':
+        if rudesdata != None:
+                attrib_rudesdata.dxf.text = rudesdata
+
+def write_scale(attrib_SCALE, SCALE:float):
+    '''
+    Заполнение
+    :param attrib_SCALE: В цикле проверки аттрибутов передается аттрибут
+    :param SCALE: 2,2.5,4,....
+    :return:
+    '''
+    if attrib_SCALE.dxf.tag == 'SCALE':
+        if SCALE != None:
+                attrib_SCALE.dxf.text = f'1:{SCALE}'
+
+def write_page_number(attrib_RUSHEET, sheet_number = 1):
+    '''Пишет номер страницы'''
+    if attrib_RUSHEET.dxf.tag == 'RUSHEET':
+        if sheet_number != None:
+                attrib_RUSHEET.dxf.text = str(sheet_number)
+
+def write_page_numbers(attrib_RUSHTS, sheet_count = 2):
+    '''Пишет номер страницы'''
+    if attrib_RUSHTS.dxf.tag == 'RUSHTS':
+        if sheet_count != None:
+                attrib_RUSHTS.dxf.text = str(sheet_count)

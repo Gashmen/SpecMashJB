@@ -599,7 +599,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             return self.dict_with_list_coordinates_on_side_for_dxf
 
 
-
 if __name__ == '__main__':
     path_to_csv = os.getcwd() + '\Общая база'
     path_to_dxf = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\Оболочка\\ContainerVer02.dxf'

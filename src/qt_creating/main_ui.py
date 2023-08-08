@@ -38,6 +38,7 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
         self.previewButton_leftMenu.clicked.connect(self.create_border)
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
+        self.previewButton_leftMenu.clicked.connect(self.write_table_border_a3)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
         self.previewButton_leftMenu.clicked.connect(self.create_BOM)
 
@@ -48,7 +49,7 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.siteASpinBox.setValue(2)
         self.siteBSpinBox.setValue(1)
         self.siteVSpinBox.setValue(2)
-        # self.test_write()
+        self.test_write()
 
 
         '''Заполнение options'''
@@ -166,8 +167,6 @@ class DxfCreator(terminal_ui.TerminalPage):
                 inputs_create.create_inputs_on_topside_withoutcapside(doc=self.doc_new,
                                                                       shell_name=self.shell_name)
 
-
-
     def create_terminals_dxf_after_DIN_REYKA(self):
         '''Добавление клемм на DIN рейку'''
         if hasattr(self,'doc_new'):
@@ -275,9 +274,9 @@ class DxfCreator(terminal_ui.TerminalPage):
         insert_upside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_upside"]')[0]
         y_min = shell_create.define_extreme_lines_in_insert(insert=insert_upside)['y_min']
 
-        border_create.create_border_A3(doc=self.doc_new,
-                                       x_min_rightside=x_min,
-                                       y_min_upside=y_min)
+        self.border_a3_insert = border_create.create_border_A3(doc=self.doc_new,
+                                                          x_min_rightside=x_min,
+                                                          y_min_upside=y_min)
 
         move_inserts.move_all_blocks_vertical_after_add_border(doc=self.doc_new,
                                                                shell_name=self.shell_name,
@@ -364,6 +363,14 @@ class DxfCreator(terminal_ui.TerminalPage):
         '''
         self.date_today = str(datetime.date.today())
         self.rudesdataLineEdit.insert(f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}')
+
+    def write_table_border_a3(self):
+        for attrib in self.border_a3_insert.attribs:
+            border_create.write_scale(attrib_SCALE=attrib,SCALE=self.scale_drawing)
+            border_create.write_page_number(attrib_RUSHEET=attrib,sheet_number=1)
+            border_create.write_page_numbers(attrib_RUSHTS=attrib,sheet_count=2)
+            border_create.write_rudesdata(attrib_rudesdata=attrib,rudesdata=self.rudesdataLineEdit.text())
+
 
     def create_BOM(self):
         '''Создаем dxf с BOM'''
