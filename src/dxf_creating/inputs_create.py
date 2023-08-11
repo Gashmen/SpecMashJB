@@ -80,7 +80,10 @@ def return_input_name_in_dict(dict_with_input_name_and_coord: dict) -> str:
      '''
 
     input_name = list(dict_with_input_name_and_coord.keys())[0]
-    return translit_input(input_name)
+    if input_name == 'Устройство заземления':
+        return "ground"
+    else:
+        return translit_input(input_name)
 
 
 def return_input_coordinate_in_dict(dict_with_input_name_and_coord: dict) -> list:
