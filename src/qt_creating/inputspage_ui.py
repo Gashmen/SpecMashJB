@@ -90,6 +90,15 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         self.ComponentsListWidget.model().rowsInserted.connect(self.add_input_from_components_listwidget_to_dict)
         self.ComponentsListWidget.model().rowsRemoved.connect(self.add_input_from_components_listwidget_to_dict)
 
+
+        '''Получение устройство заземления'''
+        self.ground_equipment_A.clicked.connect(self.set_checked_ground_A)
+        self.ground_equipment_B.clicked.connect(self.set_checked_ground_B)
+        self.ground_equipment_V.clicked.connect(self.set_checked_ground_V)
+        self.ground_equipment_G.clicked.connect(self.set_checked_ground_G)
+
+
+
     '''ФУНКЦИИ'''
     def get_type_of_inputs(self):
         '''Добавляет типы кабельнных вводов после выбора производителя кабельных вводов'''
@@ -139,6 +148,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         self.boxlocationComboBox.clear()
         if self.manufacturerInputsComboBox.currentText() != '' and self.manufacturerInputsComboBox.currentText() != None:
             self.boxlocationComboBox.addItems(['','Горизонтальное','Вертикальное'])
+
 
     def search_size_for_input(self):
         '''Поиск размера кабельного ввода, который нужен'''
@@ -267,8 +277,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                                     dict_with_manufacturer= self.main_dict[self.manufacturerInputsComboBox.currentText()],
                                     key_input=list(self.dict_with_current_input_value.keys())[0])
 
-
-
     def clear_ABVG_spinbox_afted_add_button(self):
         # Установка нулевых значений в spinbox
         self.siteASpinBox.setValue(0)
@@ -329,8 +337,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                     for _ in range(0, int(self.siteGSpinBox.text())):
                         self.sideGListWidget.addItem(self.current_input_name)
                         self.add_components_inputs('Г')
-
-
 
     def add_all_inputs(self):
         self.add_inputsA_to_list_widget()
@@ -518,6 +524,54 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                         else:
                             continue
 
+    def set_checked_ground_A(self):
+        if self.ground_equipment_A.isChecked():
+            self.ground_equipment_B.setChecked(False)
+            self.ground_equipment_V.setChecked(False)
+            self.ground_equipment_G.setChecked(False)
+
+            if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+
+    def set_checked_ground_B(self):
+        if self.ground_equipment_B.isChecked():
+            self.ground_equipment_A.setChecked(False)
+            self.ground_equipment_V.setChecked(False)
+            self.ground_equipment_G.setChecked(False)
+
+            if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+
+    def set_checked_ground_V(self):
+        if self.ground_equipment_V.isChecked():
+            self.ground_equipment_B.setChecked(False)
+            self.ground_equipment_A.setChecked(False)
+            self.ground_equipment_G.setChecked(False)
+            if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+
+    def set_checked_ground_G(self):
+        if self.ground_equipment_G.isChecked():
+            self.ground_equipment_B.setChecked(False)
+            self.ground_equipment_V.setChecked(False)
+            self.ground_equipment_A.setChecked(False)
+
+            if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
+                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+
+
 
     def get_coordinates_for_side(self):
         '''
@@ -547,6 +601,20 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                     list_on_side = [
                         [rus_input_name, list_with_diametrs_float[count]]
                         for count,rus_input_name in enumerate(list_with_inputs_on_rus_language)]
+
+                    if self.ground_equipment_A.isChecked() and shell_side == "А":
+                        list_with_diametrs_float.append(16)
+                        list_on_side.append(['Устройство заземления',16])
+                    if self.ground_equipment_B.isChecked() and shell_side == "Б":
+                        list_with_diametrs_float.append(16)
+                        list_on_side.append(['Устройство заземления',16])
+                    if self.ground_equipment_V.isChecked() and shell_side == "В":
+                        list_with_diametrs_float.append(16)
+                        list_on_side.append(['Устройство заземления',16])
+                    if self.ground_equipment_G.isChecked() and shell_side == "Г":
+                        list_with_diametrs_float.append(16)
+                        list_on_side.append(['Устройство заземления',16])
+
 
                     dict_on_side = {count:i for count,i in enumerate(sorted(list_on_side,key=lambda x: x[1], reverse=True))}
                     dict_on_side_copy = dict_on_side.copy()
@@ -604,6 +672,6 @@ if __name__ == '__main__':
     path_to_dxf = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\Оболочка\\ContainerVer02.dxf'
     app = QtWidgets.QApplication(sys.argv)
     welcome_window = InputsPageSetup(path_to_csv = path_to_csv,
-                                     path_to_dxf = path_to_dxf )
+                                     path_to_dxf = path_to_dxf)
     welcome_window.show()
     sys.exit(app.exec_())

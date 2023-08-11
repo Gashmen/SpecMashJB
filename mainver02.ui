@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1141</width>
-    <height>886</height>
+    <height>971</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -285,13 +285,13 @@ background-color:#39737c;
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="shellPage">
              <property name="sizePolicy">
@@ -878,7 +878,7 @@ background-color:#39737c;
                  <item>
                   <widget class="QLabel" name="handwrite_inputspageLabel">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -1152,64 +1152,6 @@ background-color:#39737c;
                    </layout>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QWidget" name="PainterWidget" native="true">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>1666666</height>
-                    </size>
-                   </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_9">
-                    <item alignment="Qt::AlignHCenter">
-                     <widget class="QLabel" name="Pixmap">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>1666666</width>
-                        <height>1666666</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="textFormat">
-                       <enum>Qt::AutoText</enum>
-                      </property>
-                      <property name="scaledContents">
-                       <bool>true</bool>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
                 </layout>
                </widget>
               </item>
@@ -1231,6 +1173,49 @@ background-color:#39737c;
                     </sizepolicy>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_23">
+                    <item>
+                     <widget class="QCheckBox" name="ground_equipment_A">
+                      <property name="text">
+                       <string>Устройство заземления сторона А</string>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="ground_equipment_B">
+                      <property name="text">
+                       <string>Устройство заземления сторона Б</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="ground_equipment_V">
+                      <property name="text">
+                       <string>Устройство заземления сторона В</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="ground_equipment_G">
+                      <property name="text">
+                       <string>Устройство заземления сторона Г</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="additionalcomponentWidget2" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_22">
                     <item>
                      <widget class="QCheckBox" name="V3V3">
                       <property name="sizePolicy">
@@ -1254,31 +1239,6 @@ background-color:#39737c;
                       </property>
                       <property name="text">
                        <string>Заглушка В3-В3е</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QWidget" name="additionalcomponentWidget2" native="true">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_22">
-                    <item>
-                     <widget class="QCheckBox" name="K3">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="text">
-                       <string>Кольцо заземления К3</string>
                       </property>
                      </widget>
                     </item>
@@ -1307,6 +1267,19 @@ background-color:#39737c;
                     </sizepolicy>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_21">
+                    <item>
+                     <widget class="QCheckBox" name="K3">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Кольцо заземления К3</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item>
                      <widget class="QCheckBox" name="GSH">
                       <property name="sizePolicy">

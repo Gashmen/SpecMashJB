@@ -372,6 +372,7 @@ class DxfCreator(terminal_ui.TerminalPage):
             border_create.write_rudesdata(attrib_rudesdata=attrib,rudesdata=self.rudesdataLineEdit.text())
 
 
+
     def create_BOM(self):
         '''Создаем dxf с BOM'''
         path_to_xlsx = QtWidgets.QFileDialog.getOpenFileName(self,

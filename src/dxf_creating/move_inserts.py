@@ -10,7 +10,7 @@ def move_shells_after_inputs(doc,shell_name:str):
     '''
     sides = ['_upside','_downside','_rightside','_leftside']
     #Сначала получаем все имена инпутс
-    names_inputs_with_ex = list() #Т.к. имена в блоках VZ-N25_exe, а нужно _withoutcapside
+    names_inputs_with_ex = list() #Т.к. имена в блоках VZ-N25_exe, а нужно _withoutcap
 
     for shell_side in sides:
         for block_entities in doc.blocks[shell_name + shell_side]:

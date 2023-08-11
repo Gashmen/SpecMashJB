@@ -6,7 +6,7 @@ import sys
 
 from PyQt5.QtWidgets import QMessageBox, QDialog
 
-import src.pyui_files.mainver02 as designer_ui
+import src.pyui_files.mainver02_1108 as designer_ui
 import src.pyui_files.error as error_ui
 import help_ui
 import src.csv_reader.csv_reader as csv_reader
@@ -97,7 +97,7 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.error_window = error_ui.Ui_WidgetError()
 
         '''Словарь блоков, которые нужно оставить для рисования dxf {shell_name:[block_1,block_2...],...}'''
-        self.dict_for_save_blocks_before_draw = {'border':['Border_A3']}
+        self.dict_for_save_blocks_before_draw = {'border':['Border_A3'],'inputs':[]}
 
         '''Если заранее задан путь csv'''
         self.create_main_dict_and_manufacturer_combobox(path_to_csv)

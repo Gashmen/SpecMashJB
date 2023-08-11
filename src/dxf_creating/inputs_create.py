@@ -103,6 +103,8 @@ def create_list_for_drawing_inputs(dict_with_inputs_on_side:dict)->list[str]:
 
     for list_inputs_rusname_on_side in dict_with_inputs_on_side.values():
         for inputs_rusname_on_side in list_inputs_rusname_on_side:
+            if inputs_rusname_on_side == "Устройство заземления":
+                list_for_drawing_inputs.append('ground')
             list_for_drawing_inputs.append(translit_input(inputs_rusname_on_side))
 
     list_for_drawing_inputs = list(set(list_for_drawing_inputs))
