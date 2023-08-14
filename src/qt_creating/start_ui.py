@@ -97,7 +97,7 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.error_window = error_ui.Ui_WidgetError()
 
         '''Словарь блоков, которые нужно оставить для рисования dxf {shell_name:[block_1,block_2...],...}'''
-        self.dict_for_save_blocks_before_draw = {'border':['Border_A3'],'inputs':[]}
+        self.dict_for_save_blocks_before_draw = {'border':['Border_A3']}
 
         '''Если заранее задан путь csv'''
         self.create_main_dict_and_manufacturer_combobox(path_to_csv)

@@ -438,6 +438,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             list_from_sideAListWidget = [self.sideAListWidget.item(i).text()
                                                   for i in range(0, self.sideAListWidget.count())]
             self.dict_with_inputs_on_side["А"] = list_from_sideAListWidget
+
             self.dict_for_save_blocks_before_draw['inputs'] = \
                 inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
         else:
@@ -531,10 +532,9 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.ground_equipment_G.setChecked(False)
 
             if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+                self.dict_with_inputs_on_side['А'].append('Устройство заземления')
+                self.dict_for_save_blocks_before_draw['inputs'] = \
+                    inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
 
     def set_checked_ground_B(self):
         if self.ground_equipment_B.isChecked():
@@ -543,10 +543,9 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.ground_equipment_G.setChecked(False)
 
             if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+                self.dict_with_inputs_on_side['Б'].append('Устройство заземления')
+                self.dict_for_save_blocks_before_draw['inputs'] = \
+                    inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
 
     def set_checked_ground_V(self):
         if self.ground_equipment_V.isChecked():
@@ -554,10 +553,9 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.ground_equipment_A.setChecked(False)
             self.ground_equipment_G.setChecked(False)
             if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
+                self.dict_with_inputs_on_side['В'].append('Устройство заземления')
+                self.dict_for_save_blocks_before_draw['inputs'] = \
+                    inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
 
     def set_checked_ground_G(self):
         if self.ground_equipment_G.isChecked():
@@ -566,12 +564,9 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
             self.ground_equipment_A.setChecked(False)
 
             if 'ground_exd' not in self.dict_for_save_blocks_before_draw['inputs']:
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exd')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_exe')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withcap')
-                self.dict_for_save_blocks_before_draw['inputs'].append('ground_withoutcap')
-
-
+                self.dict_with_inputs_on_side['Г'].append('Устройство заземления')
+                self.dict_for_save_blocks_before_draw['inputs'] = \
+                    inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
 
     def get_coordinates_for_side(self):
         '''

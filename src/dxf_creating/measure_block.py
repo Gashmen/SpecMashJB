@@ -13,13 +13,14 @@ def create_dict_with_horizontal_lines(block):
     ''' Сначала создаем словарь в котором находится координата y горизантольных линий(ключ) и
         линии на этой координате(значения) в списке. '''
     dict_with_horizontal_lines = dict()
-    for entity in block.entity_space:
-        if entity.dxftype() == 'LINE':
-            if round(entity.dxf.start[1], 2) == round(entity.dxf.end[1],2):
-                if round(entity.dxf.start[1], 2) not in dict_with_horizontal_lines:
-                    dict_with_horizontal_lines[round(entity.dxf.start[1], 2)] = [entity]
-                else:
-                    dict_with_horizontal_lines[round(entity.dxf.start[1], 2)].append(entity)
+    if block != None:
+        for entity in block.entity_space:
+            if entity.dxftype() == 'LINE':
+                if round(entity.dxf.start[1], 2) == round(entity.dxf.end[1],2):
+                    if round(entity.dxf.start[1], 2) not in dict_with_horizontal_lines:
+                        dict_with_horizontal_lines[round(entity.dxf.start[1], 2)] = [entity]
+                    else:
+                        dict_with_horizontal_lines[round(entity.dxf.start[1], 2)].append(entity)
     return dict_with_horizontal_lines
 
 def create_dict_with_vertical_lines(block):

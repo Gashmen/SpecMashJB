@@ -20,7 +20,7 @@ def move_shells_after_inputs(doc,shell_name:str):
     #Ищем максимальную длину кабельного ввода
     inputs_max_len = search_len_block.define_max_length_input(
                                                      doc = doc,
-                                                     list_inputs_name_after_translit= list(set(names_inputs_with_ex)))
+                                                     list_inputs_name_after_translit=list(set(names_inputs_with_ex)))
     #Отодвигаем все сайды оболочки на длину максимального кабельного ввода
     for insert in doc.modelspace().query('INSERT'):
         if '_rightside' in insert.dxf.name:
@@ -28,7 +28,7 @@ def move_shells_after_inputs(doc,shell_name:str):
         if '_leftside' in insert.dxf.name:
             insert.dxf.insert = (insert.dxf.insert[0] + inputs_max_len, insert.dxf.insert[1])
         if '_downside' in insert.dxf.name:
-            insert.dxf.insert = (insert.dxf.insert[0] , insert.dxf.insert[1] + inputs_max_len)
+            insert.dxf.insert = (insert.dxf.insert[0], insert.dxf.insert[1] + inputs_max_len)
         if '_upside' in insert.dxf.name:
             insert.dxf.insert = (insert.dxf.insert[0], insert.dxf.insert[1] - 2*inputs_max_len)
         if '_cutside' in insert.dxf.name:
@@ -39,6 +39,7 @@ def move_shells_after_inputs(doc,shell_name:str):
             insert.dxf.insert = (insert.dxf.insert[0] + 3 * inputs_max_len, insert.dxf.insert[1]+inputs_max_len)
         if 'DIN' in insert.dxf.name:
             insert.dxf.insert = (insert.dxf.insert[0] + 3 * inputs_max_len, insert.dxf.insert[1])
+
     return inputs_max_len
 
 

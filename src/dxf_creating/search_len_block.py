@@ -90,6 +90,7 @@ def measure_vertical_length_input(doc,input_name_after_translit:str):
     :return: Длину инпута : 36,685
     '''
     len_input = 0.0
+
     for entities_in_input in doc.blocks[f"{input_name_after_translit}_withoutcap"]:
         if entities_in_input.dxftype() == "LINE":
             #Вычленить сначала вертикальные линии
