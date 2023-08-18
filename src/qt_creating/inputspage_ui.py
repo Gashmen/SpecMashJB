@@ -4,8 +4,8 @@ import sys
 from transliterate import translit
 
 
-import shellpage_ui
-import start_ui as designer_ui
+from src.qt_creating import shellpage_ui
+from src.qt_creating import start_ui as designer_ui
 import src.algoritms.new as new
 import src.csv_reader.csv_reader as csv_reader
 import src.dxf_creating.inputs_create as inputs_create
@@ -22,6 +22,8 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
 
         self.dict_with_inputs_on_side = {"А": [], "Б": [], 'В': [], "Г": [], "Крышка": []}
         self.dict_with_list_coordinates_on_side_for_dxf = {'А': {}, 'Б': {}, "В": {}, "Г": {}, "Крышка": {}}
+
+        self.accept_inputs = {"А": True, "Б": True, 'В': True, "Г": True}
         '''Заполнение Combobox'''
         #Заполнение типа ввода
         self.manufacturerInputsComboBox.currentTextChanged.connect(self.get_type_of_inputs)
@@ -96,7 +98,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         self.ground_equipment_B.clicked.connect(self.set_checked_ground_B)
         self.ground_equipment_V.clicked.connect(self.set_checked_ground_V)
         self.ground_equipment_G.clicked.connect(self.set_checked_ground_G)
-
 
 
     '''ФУНКЦИИ'''
@@ -568,6 +569,16 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                 self.dict_for_save_blocks_before_draw['inputs'] = \
                     inputs_create.create_list_for_drawing_inputs(self.dict_with_inputs_on_side)
 
+    def check_ground_checkbox(self):
+        '''
+        Проверка если есть устройство заземления, то добавить инфомарцию о его диаметре self.all_name_inputs
+        '''
+
+        if self.ground_equipment_A.isChecked() or self.ground_equipment_B.isChecked() or\
+            self.ground_equipment_V.isChecked() or self.ground_equipment_G.isChecked():
+            self.all_name_inputs['Устройство заземления'] = 16.0
+
+
     def get_coordinates_for_side(self):
         '''
         Получение координат словарем self.dict_with_list_coordinates_on_side_for_dxf для построения в dxf
@@ -578,6 +589,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
         'Крышка': {}}
         '''
         self.delete_R_in_russian_input_name()#Удаляем расширенный ввод в названиях на русском
+        self.check_ground_checkbox()
         if hasattr(self, 'polyline_xy_coordinate_side'):
             for shell_side, list_with_inputs_on_rus_language in self.dict_with_inputs_on_side.items():
                 if list_with_inputs_on_rus_language != []:
@@ -596,20 +608,6 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                     list_on_side = [
                         [rus_input_name, list_with_diametrs_float[count]]
                         for count,rus_input_name in enumerate(list_with_inputs_on_rus_language)]
-
-                    if self.ground_equipment_A.isChecked() and shell_side == "А":
-                        list_with_diametrs_float.append(16)
-                        list_on_side.append(['Устройство заземления',16])
-                    if self.ground_equipment_B.isChecked() and shell_side == "Б":
-                        list_with_diametrs_float.append(16)
-                        list_on_side.append(['Устройство заземления',16])
-                    if self.ground_equipment_V.isChecked() and shell_side == "В":
-                        list_with_diametrs_float.append(16)
-                        list_on_side.append(['Устройство заземления',16])
-                    if self.ground_equipment_G.isChecked() and shell_side == "Г":
-                        list_with_diametrs_float.append(16)
-                        list_on_side.append(['Устройство заземления',16])
-
 
                     dict_on_side = {count:i for count,i in enumerate(sorted(list_on_side,key=lambda x: x[1], reverse=True))}
                     dict_on_side_copy = dict_on_side.copy()
@@ -656,7 +654,7 @@ class InputsPageSetup(shellpage_ui.ShellPageSetup,designer_ui.Mainver):
                                                     input_rus_name][0] + free_space * (number+1)/(max(list(self.dict_with_list_coordinates_on_side_for_dxf[shell_side].keys()))+2)
                                     # continue
                         else:
-                            continue
+                            break
                         keynumber_for_delete_input = keynumber_for_delete_input + 1
 
             return self.dict_with_list_coordinates_on_side_for_dxf

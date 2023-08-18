@@ -16,30 +16,9 @@ def select_doc_new(path_to_dxf):
     '''Возращает просто dxf путь'''
     return path_to_dxf
 
-def pdf_creation(self):
-    ax: plt.Axes = self.fig.add_axes([0, 0, 1, 1])
-    ctx = RenderContext(self.doc)
 
-    # Get the modelspace properties
-    msp_properties = LayoutProperties.from_layout(self.msp)
-
-    # Set light gray background color and black foreground color
-    msp_properties.set_colors("#FFFFFF", "#000000")
-
-    config = Configuration()
-    config = config.with_changes(
-        min_lineweight=0.05,  # in 1/300 inch: 1 mm = 1mm / 25.4 * 300
-        lineweight_scaling=0.1
-    )
-    out = MatplotlibBackend(ax)
-
-    # Override the layout properties and render the modelspace
-    Frontend(ctx, out, config=config).draw_layout(self.msp, finalize=True, layout_properties=msp_properties)
-
-if __name__ == '__main__':
-
-    path_to_dxf = 'C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx_dimesion.dxf'
-    print([i for i in matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf') if 'gost' in i.lower()])
+def save_pdf(save_doc_path):
+    path_to_dxf = save_doc_path
 
     try:
         doc, auditor = recover.readfile(select_doc_new(path_to_dxf=path_to_dxf))
@@ -76,6 +55,11 @@ if __name__ == '__main__':
         layout_properties.set_colors(bg='#FFFFFF')
 
         Frontend(ctx, out, config=config).draw_layout(doc.modelspace(),layout_properties=layout_properties, finalize=True)
-        path_to_pdf = '\\'.join(path_to_dxf.split('\\')[0:-1]) + '\\test.pdf'
+        path_to_pdf = path_to_dxf[:-3] + 'pdf'
         fig.savefig(path_to_pdf, format='pdf', dpi=300, facecolor='black', edgecolor='black')
+
+if __name__ == '__main__':
+
+    path_to_dxf = 'C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf'
+    save_pdf(path_to_dxf)
 

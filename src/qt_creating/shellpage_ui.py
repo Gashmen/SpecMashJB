@@ -4,7 +4,7 @@ import sys
 from transliterate import translit
 
 
-import start_ui as designer_ui
+from src.qt_creating import start_ui as designer_ui
 import src.csv_reader.csv_reader as csv_reader
 from src.dxf_creating import shell_create,main_shell_create
 

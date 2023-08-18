@@ -14,6 +14,7 @@ from src.dxf_creating import dimension_create
 from src.dxf_creating import border_create
 from src.dxf_creating import BOM_create
 from src.dxf_creating import cutside_works
+from src.dxf_creating import nameplate
 class DxfCreator(terminal_ui.TerminalPage):
 
     def __init__(self,
@@ -38,9 +39,10 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_terminals_dxf_after_DIN_REYKA)
         self.previewButton_leftMenu.clicked.connect(self.create_border)
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
-        self.previewButton_leftMenu.clicked.connect(self.write_table_border_a3)
+        self.previewButton_leftMenu.clicked.connect(self.write_table_border_a3_main)
+        self.previewButton_leftMenu.clicked.connect(self.create_nameplate)
         self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
-        self.previewButton_leftMenu.clicked.connect(self.create_BOM)
+        # self.previewButton_leftMenu.clicked.connect(self.create_BOM)
 
         self.Autohelper.clicked.connect(self.create_BOM)
 
@@ -57,6 +59,9 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.create_dict_for_verification()
         self.write_rudes_name()
         self.write_rudes_data()
+
+
+
 
     def create_shell_dxf_after_selfkey(self):
         '''Создание dxf оболочки'''
@@ -156,6 +161,7 @@ class DxfCreator(terminal_ui.TerminalPage):
                                                      dict_before_match=self.dict_with_list_coordinates_on_side_for_dxf,
                                                      full_shale_name=self.shell_name,
                                                      type_of_explosion=ex_protection)
+
                 self.input_max_len = move_inserts.move_shells_after_inputs(doc=self.doc_new,
                                                                            shell_name=self.shell_name)
                 self.boundaries_drawing = move_inserts.get_boundaries_drawing(doc=self.doc_new,
@@ -364,13 +370,80 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.date_today = str(datetime.date.today())
         self.rudesdataLineEdit.insert(f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}')
 
-    def write_table_border_a3(self):
+    def write_table_border_a3_main(self):
         for attrib in self.border_a3_insert.attribs:
             border_create.write_scale(attrib_SCALE=attrib,SCALE=self.scale_drawing)
             border_create.write_page_number(attrib_RUSHEET=attrib,sheet_number=1)
             border_create.write_page_numbers(attrib_RUSHTS=attrib,sheet_count=2)
             border_create.write_rudesdata(attrib_rudesdata=attrib,rudesdata=self.rudesdataLineEdit.text())
 
+
+    def create_nameplate(self):
+        '''Создает self.doc_nameplate'''
+        self.doc_nameplate = nameplate.create_nameplate_doc(dxfbase_path=self.path_to_dxf)
+        border_a3_insert = border_create.create_border_A3(doc=self.doc_nameplate,
+                                                          x_min_rightside=0,
+                                                          y_min_upside=0)
+
+        extreme_lines_border = shell_create.define_extreme_lines_in_insert(insert=border_a3_insert)
+
+        nameplate_insert = nameplate.create_nameplate_insert(doc_nameplate=self.doc_nameplate,
+                                                             extreme_lines_border_insert=extreme_lines_border)
+
+        insert_x = extreme_lines_border['x_min'] + \
+                   (extreme_lines_border['x_max'] - extreme_lines_border['x_min']) / 2
+
+        insert_y = extreme_lines_border['y_min'] + \
+                   (extreme_lines_border['y_max'] - extreme_lines_border['y_min']) / 2
+
+        nameplate_insert.dxf.insert = (insert_x,insert_y)
+
+        extreme_lines_nameplate = shell_create.define_extreme_lines_in_insert(insert=nameplate_insert)
+
+        for attrib_in_nameplate in nameplate_insert.attribs:
+            print(attrib_in_nameplate.dxf.color)
+            if self.task_number != '':
+                nameplate.write_attrib_box_full_name(attrib=attrib_in_nameplate,
+                                                     full_name=f'К{self.serialCombobox_shellpage.currentText()}.{self.sizeCombobox_shellpage.currentText()}',
+                                                     add_numbers=f'.{self.task_number}.{self.position_number}')
+            else:
+                nameplate.write_attrib_box_full_name(attrib=attrib_in_nameplate,
+                                                     full_name=f'К{self.serialCombobox_shellpage.currentText()}.{self.sizeCombobox_shellpage.currentText()}')
+
+            nameplate.write_explosion_tag(attrib=attrib_in_nameplate,
+                                          gasdustore=self.gasdustoreComboBox_shellpage.currentText(),
+                                          temperature_class=self.temperature_class_comboBox_shellpage.currentText())
+            nameplate.write_minus_temperature(attrib=attrib_in_nameplate,
+                                              minus_temperature=self.mintempLineEdit_shellpage.text())
+            nameplate.write_plus_temperature(attrib=attrib_in_nameplate,
+                                             plus_temperature=self.maxtempLineedit_shellpage.text())
+            nameplate.write_voltage_current_frequency(attrib=attrib_in_nameplate)
+            nameplate.write_batch_number(attrib=attrib_in_nameplate)
+            nameplate.write_just_attrib_1(attrib=attrib_in_nameplate)
+            nameplate.write_just_attrib_2(attrib=attrib_in_nameplate)
+            nameplate.write_just_attrib_3(attrib=attrib_in_nameplate)
+            nameplate.write_just_attrib_4(attrib=attrib_in_nameplate)
+
+
+        for attrib in border_a3_insert.attribs:
+            if attrib.dxf.tag == 'SCALE':
+                attrib.dxf.text = f'2.5:1'
+            border_create.write_page_number(attrib_RUSHEET=attrib,sheet_number=2)
+            border_create.write_page_numbers(attrib_RUSHTS=attrib,sheet_count=2)
+            border_create.write_rudesdata(attrib_rudesdata=attrib,rudesdata=self.rudesdataLineEdit.text())
+
+        dim_horizontal = self.doc_nameplate.modelspace().add_linear_dim(
+            base=(extreme_lines_nameplate['x_min'],
+                  extreme_lines_nameplate['y_max'] + 15),
+            # point_for_horizontal_dimension['min_down'][0] - 3 * self.input_max_len/self.scale_drawing),
+            p1=(extreme_lines_nameplate['x_min'],extreme_lines_nameplate['y_max']),
+            p2=(extreme_lines_nameplate['x_max'],extreme_lines_nameplate['y_max']),
+            dimstyle='EZDXF')
+        dim_horizontal.dimension.dxf.text = f'58'
+        dim_horizontal.dimstyle.dxf.dimtxt = 4
+        dim_horizontal.dimstyle.dxf.dimasz = 4
+
+        dim_horizontal.dimstyle.dxf.dimclrd = 256
 
 
     def create_BOM(self):

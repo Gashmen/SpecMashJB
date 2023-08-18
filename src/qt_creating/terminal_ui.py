@@ -2,7 +2,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 import sys
 
-import inputspage_ui
+from src.qt_creating import inputspage_ui
 from src.dxf_changer import TERMINAL_DB
 from src.dxf_creating import terminal_create
 

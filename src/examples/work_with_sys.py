@@ -1,6 +1,9 @@
 import sys
 import os
+import openpyxl
 
-print(sys.getwindowsversion())
+wb = openpyxl.load_workbook('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\verification\\Сотрудники филиала+.xlsx')
+print(wb)
+
 
 

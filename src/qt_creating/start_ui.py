@@ -8,11 +8,11 @@ from PyQt5.QtWidgets import QMessageBox, QDialog
 
 import src.pyui_files.mainver02_1108 as designer_ui
 import src.pyui_files.error as error_ui
-import help_ui
+from src.qt_creating import help_ui
 import src.csv_reader.csv_reader as csv_reader
 from src.dxf_changer import TERMINAL_DB
-
-
+from src.authentication import backend_auth
+from src.pdf_creator import pdf_main
 class ExtendedComboBox(QtWidgets.QComboBox):
     def __init__(self, parent=None):
         super(ExtendedComboBox, self).__init__(parent)
@@ -91,6 +91,7 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.main_information = None #Переменная, куда сохраняется все.
         self.csv_file_dialog = CustomFileDialogCsv()
         self.doc_new = None
+        self.doc_nameplate = None
         self.list_added_blocks = list()
 
         '''Дополнительные окна при запуске'''
@@ -106,6 +107,11 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.csv_Button.clicked.connect(self.get_csv_file)
 
 
+        '''Заполнение штампов'''
+        self.task_number = ''
+        self.position_number = ''
+
+
         '''BUTTON FUNCTIONS'''
         self.shellButton_leftMenu.clicked.connect(self.set_shell_page)
 
@@ -118,6 +124,9 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         self.helpwindowButton.clicked.connect(self.open_help_window)
 
         self.pushButton_2.clicked.connect(self.call_error)
+
+        self.welcomewindowButton.clicked.connect(self.home_window)
+
 
 
     '''ИЗМЕНЕНИЕ СТРАНИЦ В SHELL PAGE'''
@@ -169,7 +178,13 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
                                                                      caption="Сохранение dxf файла",
                                                                      filter= 'DXF Files(*.dxf)')
                 if doc_filename:
-                    self.doc_new.saveas(doc_filename)
+                    self.doc_new.saveas(doc_filename[:-3] + '_1.dxf')
+                    self.doc_nameplate.saveas(doc_filename[:-3] + '_2.dxf')
+                    pdf_main.save_pdf(doc_filename[:-3] + '_1.dxf')
+                    pdf_main.save_pdf(doc_filename[:-3] + '_2.dxf')
+
+
+
 
     def save_doc_bom(self):
         '''При нажатии на предпросмотр сохраняет файл'''
@@ -254,7 +269,13 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
 
         # QMessageBox.critical(self, "Ошибка ", "Тестирование QMessageBox из call_error", QMessageBox.Ok)
 
-
+    def home_window(self):
+        '''открытие окна дом'''
+        self.home_window = backend_auth.AuthWindow()
+        self.home_window.set_task_number(self.task_number)
+        self.home_window.set_position_number(self.position_number)
+        self.close()
+        self.home_window.show()
 
 
 if __name__ == "__main__":
