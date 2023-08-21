@@ -90,8 +90,8 @@ class AuthWindow(QtWidgets.QMainWindow, frontend_auth.Ui_WelcomeWindow):
         path_to_dxf_shell = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\dxf_base\\DXF_BASE.dxf'
         path_to_terminal_dxf = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\dxf_base\\DXF_BASE.dxf'
         self.jb_window = main_ui.DxfCreator(path_to_csv=path_to_csv,
-                                       path_to_dxf = path_to_dxf_shell,
-                                       path_to_terminal_dxf=path_to_terminal_dxf)
+                                            path_to_dxf=path_to_dxf_shell,
+                                            path_to_terminal_dxf=path_to_terminal_dxf)
         # self.jb_window = start_ui.Mainver(path_to_terminal_dxf=path_to_terminal_dxf)
 
         self.jb_window.task_number = self.return_task_number()

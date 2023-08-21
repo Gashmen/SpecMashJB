@@ -60,6 +60,6 @@ def save_pdf(save_doc_path):
 
 if __name__ == '__main__':
 
-    path_to_dxf = 'C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf'
+    path_to_dxf = 'C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx_dimesion._2.dxf'
     save_pdf(path_to_dxf)
 

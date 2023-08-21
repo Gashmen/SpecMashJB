@@ -2,6 +2,7 @@ import datetime
 import os
 
 import ezdxf
+from ezdxf.entities import Dimension,Insert
 import openpyxl
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
@@ -15,6 +16,8 @@ from src.dxf_creating import border_create
 from src.dxf_creating import BOM_create
 from src.dxf_creating import cutside_works
 from src.dxf_creating import nameplate
+
+
 class DxfCreator(terminal_ui.TerminalPage):
 
     def __init__(self,
@@ -41,8 +44,8 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.write_table_border_a3_main)
         self.previewButton_leftMenu.clicked.connect(self.create_nameplate)
-        self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
-        # self.previewButton_leftMenu.clicked.connect(self.create_BOM)
+        # self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
+        self.previewButton_leftMenu.clicked.connect(self.create_BOM)
 
         self.Autohelper.clicked.connect(self.create_BOM)
 
@@ -210,9 +213,15 @@ class DxfCreator(terminal_ui.TerminalPage):
         extreme_lines_topside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_topside)
         insert_upside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_upside"]')[0]
         extreme_lines_upside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_upside)
+        insert_downside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_downside"]')[0]
+        extreme_lines_downside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_downside)
+        insert_rightside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_rightside"]')[0]
+        extreme_lines_rightside_after_scale = shell_create.define_extreme_lines_in_insert(insert=insert_rightside)
         insert_on_topside = dimension_create.define_inputs_on_topside(doc=self.doc_new,
                                                                       shell_name=self.shell_name,
                                                                       extreme_lines_topside_after_scale=extreme_lines_topside_after_scale)
+
+
 
         point_for_horizontal_dimension = \
             {'max_up': dimension_create.calculate_max_up_coordinate(
@@ -246,7 +255,9 @@ class DxfCreator(terminal_ui.TerminalPage):
             p2=tuple(point_for_horizontal_dimension['max_up']),
             dimstyle='EZDXF',
             base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/self.scale_drawing,
-                  point_for_horizontal_dimension['max_right'][0]- self.input_max_len/self.scale_drawing))
+                  point_for_horizontal_dimension['max_right'][0]- self.input_max_len/self.scale_drawing),
+            text= f'{round((point_for_horizontal_dimension["max_up"][1] - point_for_horizontal_dimension["min_down"][1]) * self.scale_drawing, 0)}'
+        ).render()
 
 
         dim.dimension.dxf.text = f'{round(dim.dimension.get_measurement() * self.scale_drawing, 0)}'
@@ -259,19 +270,46 @@ class DxfCreator(terminal_ui.TerminalPage):
             p2=point_for_horizontal_dimension['max_right'],
             dimstyle='EZDXF')
         dim_horizontal.dimension.dxf.text = f'{round(dim_horizontal.dimension.get_measurement() * self.scale_drawing, 0)}'
+        dim_horizontal.render()
 
-        dim_height = self.doc_new.modelspace().add_linear_dim(
-            angle=90,
-            p1=(extreme_lines_upside_after_scale['x_min'],extreme_lines_upside_after_scale['y_max']),
-            p2=(extreme_lines_upside_after_scale['x_min'],extreme_lines_upside_after_scale['y_min']),
+
+        # dim_height_downside = self.doc_new.modelspace().add_linear_dim(
+        #     angle=90,
+        #     p1=(extreme_lines_downside_after_scale['x_min'],extreme_lines_downside_after_scale['y_max']),
+        #     p2=(extreme_lines_downside_after_scale['x_min'],extreme_lines_downside_after_scale['y_min']),
+        #     dimstyle='EZDXF',
+        #     base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/self.scale_drawing,
+        #           extreme_lines_downside_after_scale['y_min'] +
+        #           (extreme_lines_downside_after_scale['y_max'] - extreme_lines_downside_after_scale['y_min'])/2),
+        #     override={
+        #         "dimtad": 4,# 0=center; 1=above; 4=below
+        #         'dimsah':1},
+        # )
+        #
+        # dim_height_downside.dimension.dxf.text = f'{round(dim_height.dimension.get_measurement() * self.scale_drawing, 0)}'
+        # dim_height_downside.set_arrows(blk=ezdxf.ARROWS.closed_filled)
+        # dim_height_downside.render()
+
+        dim_height_rightside = self.doc_new.modelspace().add_linear_dim(
+            p1=(extreme_lines_rightside_after_scale['x_min'],extreme_lines_rightside_after_scale['y_max']),
+            p2=(extreme_lines_rightside_after_scale['x_max'],extreme_lines_rightside_after_scale['y_max']),
             dimstyle='EZDXF',
-            base=(point_for_horizontal_dimension['min_left'][0] - self.input_max_len/3, point_for_horizontal_dimension['max_right'][0]- self.input_max_len/3))
-        dim_height.dimension.dxf.text = f'{round(dim_height.dimension.get_measurement() * self.scale_drawing, 0)}'
+            base=(extreme_lines_rightside_after_scale['x_min'] + (extreme_lines_rightside_after_scale['x_max'] - extreme_lines_rightside_after_scale['x_min'])/2,
+                  extreme_lines_rightside_after_scale['y_max'] + 1.5 * self.input_max_len/self.scale_drawing)
+        )
 
+        dim_height_rightside.dimension.dxf.text = f'{round(dim_height_rightside.dimension.get_measurement() * self.scale_drawing, 0)}'
+        dim_height_rightside.set_arrows(blk=ezdxf.ARROWS.closed_filled)
+        dim_height_rightside.render()
+
+
+
+        # dim_height.dimension.dxf.dimstyle = 'KDIMSTYLE'
         cutside_works.add_label_cut(doc=self.doc_new,
                                     shell_name=self.shell_name,
                                     max_len_input=self.input_max_len / self.scale_drawing,
                                     scale=self.scale_drawing)
+
     def create_border(self):
         '''Создает рамку относительно '''
         insert_rightside = self.doc_new.modelspace().query(f'INSERT[name=="{self.shell_name}_rightside"]')[0]
@@ -439,11 +477,13 @@ class DxfCreator(terminal_ui.TerminalPage):
             p1=(extreme_lines_nameplate['x_min'],extreme_lines_nameplate['y_max']),
             p2=(extreme_lines_nameplate['x_max'],extreme_lines_nameplate['y_max']),
             dimstyle='EZDXF')
+
         dim_horizontal.dimension.dxf.text = f'58'
+        dim_horizontal.dimension.dxf.color = 7
         dim_horizontal.dimstyle.dxf.dimtxt = 4
         dim_horizontal.dimstyle.dxf.dimasz = 4
+        dim_horizontal.render()
 
-        dim_horizontal.dimstyle.dxf.dimclrd = 256
 
 
     def create_BOM(self):
@@ -458,7 +498,7 @@ class DxfCreator(terminal_ui.TerminalPage):
 
         if path_to_xlsx:
             data_base_bom = BOM_create.read_BOM_base(xlsx_base_path=path_to_xlsx)
-            self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=path_to_dxf_shell)
+            self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=self.path_to_dxf)
             border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
             list_with_block_names = [block.dxf.name for block in self.doc_new.blocks if '*' not in block.dxf.name]
             list_for_creating_BOM = list()
