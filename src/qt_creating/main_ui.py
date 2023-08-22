@@ -500,16 +500,29 @@ class DxfCreator(terminal_ui.TerminalPage):
             data_base_bom = BOM_create.read_BOM_base(xlsx_base_path=path_to_xlsx)
             self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=self.path_to_dxf)
             border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
-            list_with_block_names = [block.dxf.name for block in self.doc_new.blocks if '*' not in block.dxf.name]
+            list_with_block_names = [insert.dxf.name for insert in self.doc_new.modelspace().query('INSERT') if '*' not in insert.dxf.name]
+            dict_with_block_names = {}
+
+            for insert_name in list_with_block_names:
+                if insert_name not in dict_with_block_names:
+                    dict_with_block_names[insert_name] = 1
+                else:
+                    dict_with_block_names[insert_name] += 1
+
             list_for_creating_BOM = list()
-            for block_name in list_with_block_names:
+
+            for block_name in dict_with_block_names:
                 for count_block, name_block_base in data_base_bom['Блок'].items():
                     if name_block_base == block_name:
                         _dict = {}
                         for _ in data_base_bom:
                             if _ != 'Блок':
                                 _dict[_] = data_base_bom[_][count_block]
+                        _dict['Кол.'] = dict_with_block_names[block_name]
+                        if 'Винт' in _dict['Наименование'] or 'Шайба' in _dict['Наименование']:
+                            _dict['Кол.'] +=1
                         list_for_creating_BOM.append(_dict)
+
             list_for_creating_BOM_with = BOM_create.create_dict_main_properties(list_for_creating_BOM)
             dict_attribs = {attrib.dxf.tag: attrib for attrib in border_insert_first_page.attribs}
 

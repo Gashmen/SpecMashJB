@@ -36,6 +36,18 @@ def create_BOM_FIRST(doc_bom):
 
         return border_insert
 
+def create_BOM_SECOND(doc_bom):
+    '''Создает первый лист спецификации'''
+
+    block_border = doc_bom.blocks['BOM_SECOND']
+    values = {attdef.dxf.tag: '' for attdef in block_border.query('ATTDEF')}
+    if doc_bom.blocks.get('BOM_SECOND'):
+        border_insert = doc_bom.modelspace().add_blockref(name='BOM_SECOND',
+                                                          insert=(0, 0))
+        border_insert.add_auto_attribs(values)
+
+        return border_insert
+
 def check_name_len(name_string:str):
     if name_string != None:
         if math.ceil(len(name_string)/27) ==1:
@@ -208,7 +220,7 @@ def create_list_all_block_names_in_doc(doc_new):
     :param doc: self.doc_new
     :return: ['SUPU_SCREW..., VP.161610_topside,...']
     '''
-    return  [block.dxf.name for block in doc.blocks if '*' not in block.dxf.name]
+    return [block.dxf.name for block in doc.blocks if '*' not in block.dxf.name]
 
 
 def check_next_page(BOM_insert_name:str, row_number:int):
