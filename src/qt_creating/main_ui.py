@@ -498,18 +498,18 @@ class DxfCreator(terminal_ui.TerminalPage):
 
             border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
 
-            dict_with_block_names = BOM_create.create_dict_with_insert_names(doc = self.doc_new)
+            dict_with_block_names_counts = BOM_create.create_dict_with_insert_names(doc=self.doc_new)
 
             list_for_creating_BOM = list()
 
-            for block_name in dict_with_block_names:
+            for block_name in dict_with_block_names_counts:
                 for count_block, name_block_base in data_base_bom['Блок'].items():
                     if name_block_base == block_name:
                         _dict = {}
                         for _ in data_base_bom:
                             if _ != 'Блок':
                                 _dict[_] = data_base_bom[_][count_block]
-                        _dict['Кол.'] = dict_with_block_names[block_name]
+                        _dict['Кол.'] = dict_with_block_names_counts[block_name]
                         if 'Винт' in _dict['Наименование'] or 'Шайба' in _dict['Наименование']:
                             _dict['Кол.'] +=1
                         list_for_creating_BOM.append(_dict)
