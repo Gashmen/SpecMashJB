@@ -485,13 +485,9 @@ class DxfCreator(terminal_ui.TerminalPage):
         dim_horizontal.render()
 
 
-
     def create_BOM(self):
         '''Создаем dxf с BOM'''
-        path_to_xlsx = QtWidgets.QFileDialog.getOpenFileName(self,
-                                                             directory='\\'.join(os.getcwd().split('\\')[0:-1]),
-                                                             caption='Выбор файла бд xlsx ',
-                                                             filter='Excel file(*.xlsx)')[0]
+        path_to_xlsx = BOM_create.get_path_to_xlsx(main_window_class_instance=self)
 
         tag_in_BOM_dxf = {'Формат': 'A', 'Зона': 'B', 'Поз.': 'C', 'Обозначение': 'D', 'Наименование': 'E', 'Кол.': 'F',
                           'Примечание': 'G'}
@@ -499,15 +495,10 @@ class DxfCreator(terminal_ui.TerminalPage):
         if path_to_xlsx:
             data_base_bom = BOM_create.read_BOM_base(xlsx_base_path=path_to_xlsx)
             self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=self.path_to_dxf)
-            border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
-            list_with_block_names = [insert.dxf.name for insert in self.doc_new.modelspace().query('INSERT') if '*' not in insert.dxf.name]
-            dict_with_block_names = {}
 
-            for insert_name in list_with_block_names:
-                if insert_name not in dict_with_block_names:
-                    dict_with_block_names[insert_name] = 1
-                else:
-                    dict_with_block_names[insert_name] += 1
+            border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
+
+            dict_with_block_names = BOM_create.create_dict_with_insert_names(doc = self.doc_new)
 
             list_for_creating_BOM = list()
 

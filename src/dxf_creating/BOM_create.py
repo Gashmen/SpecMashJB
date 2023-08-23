@@ -1,9 +1,10 @@
 import math
+import os
 
 import ezdxf
 import openpyxl
 from openpyxl.utils import get_column_letter
-
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 def create_doc_BOM(dxfbase_path:str):
     '''Создает BOM удаляя все не нужное'''
@@ -257,9 +258,37 @@ def write_mainproperty_in_bom_E_cell(BOM_insert_name:str, row_number:int, mainpr
         return False
 
 
+def get_path_to_xlsx(main_window_class_instance):
+    '''
+    Получение пути для xlsx
+    :param main_window_class_instance: параметр self
+    :return:
+    '''
+    path_to_xlsx = QtWidgets.QFileDialog.getOpenFileName(main_window_class_instance,
+                                                             directory='\\'.join(os.getcwd().split('\\')[0:-1]),
+                                                             caption='Выбор файла бд xlsx ',
+                                                             filter='Excel file(*.xlsx)')[0]
 
+    return path_to_xlsx
 
+def create_dict_with_insert_names(doc):
+    '''
+    doc того чертежа, откуда хотим создать BOM
+    :param doc:
+    :return: {имя инстера: количество его на чертеже}
+    '''
 
+    list_with_block_names = [insert.dxf.name for insert in doc.modelspace().query('INSERT') if
+                             '*' not in insert.dxf.name]
+    dict_with_block_names = {}
+
+    for insert_name in list_with_block_names:
+        if insert_name not in dict_with_block_names:
+            dict_with_block_names[insert_name] = 1
+        else:
+            dict_with_block_names[insert_name] += 1
+
+    return dict_with_block_names
 
 if __name__ == '__main__':
 
