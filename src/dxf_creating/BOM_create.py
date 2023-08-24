@@ -269,6 +269,8 @@ def get_path_to_xlsx(main_window_class_instance):
                                                              caption='Выбор файла бд xlsx ',
                                                              filter='Excel file(*.xlsx)')[0]
 
+
+
     return path_to_xlsx
 
 def create_dict_with_insert_names(doc):
@@ -290,63 +292,82 @@ def create_dict_with_insert_names(doc):
 
     return dict_with_block_names
 
-if __name__ == '__main__':
+def dict_all_attrib_in_BOM(list_for_creating_BOM_with):
+    '''
 
-    # create_BOM_FIRST(doc_bom=doc)
-    # doc.saveas('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\test_BOM.dxf')
+    :param list_for_creating_BOM_with:
+    {'Сборочные единицы': [{'Обозначение': 'ВРПТ.301172.024-021', 'Наименование': 'Оболочка ВП.262512', 'Формат': 'А4', 'Кол.': 1, 'Примечание': None, 'Цена': 7154.1}, {'Обозначение': 'ВРПТ.305311.001-025', 'Наименование': 'Кабельный ввод ВЗ-Н25#для не бронированного#кабеля, диаметром 12-18мм', 'Формат': 'А4', 'Кол.': 6, 'Примечание': None, 'Цена': 884.21}, {'Обозначение': 'ВРПТ.305311.001-016', 'Наименование': 'Кабельный ввод ВЗ-Н16#для не бронированного#кабеля, диаметром 3-8мм', 'Формат': 'А4', 'Кол.': 3, 'Примечание': None, 'Цена': 615.75}, {'Обозначение': 'ВРПТ.305311.001-012', 'Наименование': 'Кабельный ввод ВЗ-Н12#для не бронированного#кабеля, диаметром 2-6мм', 'Формат': 'А4', 'Кол.': 2, 'Примечание': None, 'Цена': 607.79}, {'Обозначение': 'ВРПТ.305311.001-032', 'Наименование': 'Кабельный ввод ВЗ-Н32#для не бронированного#кабеля, диаметром 18-25мм', 'Формат': 'А4', 'Кол.': 2, 'Примечание': None, 'Цена': 1188.38}, {'Обозначение': 'ВРПТ.685541.003', 'Наименование': 'Устройство заземления', 'Формат': None, 'Кол.': 1, 'Примечание': None, 'Цена': None}],
+    'Стандартные изделия': [{'Обозначение': None, 'Наименование': 'Винт А2.М6-6gx10.019#ГОСТ 17473-80', 'Формат': 'А4', 'Кол.': 2, 'Примечание': None, 'Цена': None}, {'Обозначение': None, 'Наименование': 'Шайба 6 019 ГОСТ 6402-70', 'Формат': 'А4', 'Кол.': 2, 'Примечание': None, 'Цена': None}, {'Обозначение': None, 'Наименование': 'Шайба A.6.019 ГОСТ 11371-78', 'Формат': 'А4', 'Кол.': 2, 'Примечание': None, 'Цена': None}],
+    'Детали': [{'Обозначение': 'ВРПТ.745551.005-240', 'Наименование': 'DIN-рейка NS35х7,5, L=240 мм', 'Формат': 'А4', 'Кол.': 1, 'Примечание': None, 'Цена': None}]}
+    :return:
+    '''
 
-    data_base_bom = read_BOM_base(xlsx_base_path='C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\dxf_base\\naming_base.xlsx')
-    doc = ezdxf.readfile('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\\src\\xx.dxf')
+    return_dict_attribs = dict()
 
-    tag_in_BOM_dxf = {'Формат':'A', 'Зона':'B', 'Поз.':'C', 'Обозначение':'D', 'Наименование':'E', 'Кол.': 'F', 'Примечание':'G'}
-
-    list_with_block_names = create_list_all_block_names_in_doc(doc_new=doc)
-
-    list_for_creating_BOM = list()
-    for block_name in list_with_block_names:
-        for count_block, name_block_base in data_base_bom['Блок'].items():
-            if name_block_base == block_name:
-                _dict = {}
-                for _ in data_base_bom:
-                    if _ != 'Блок':
-                        _dict[_]= data_base_bom[_][count_block]
-                list_for_creating_BOM.append(_dict)
-
-    doc_bom = create_doc_BOM(dxfbase_path='C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\src\dxf_base\\DXF_BASE.dxf')
-
-    main_border = create_BOM_FIRST(doc_bom=doc_bom)
-
-    dict_attribs = {attrib.dxf.tag: attrib for attrib in main_border.attribs}
-
-    dict_for_creating_BOM_with = create_dict_main_properties(list_for_creating_BOM)
+    tag_in_BOM_dxf = {'Формат': 'A', 'Зона': 'B', 'Поз.': 'C', 'Обозначение': 'D', 'Наименование': 'E', 'Кол.': 'F',
+                      'Примечание': 'G'}
 
     start_row_int = 1
     startstart_row_int = 1
-    for name_property in dict_for_creating_BOM_with:
-        # if write_mainproperty_in_bom_E_cell(BOM_insert_name = main_border, row_number:int, mainproperty_attribtag_name:str, dict_attribs:dict)
+
+    for name_property in list_for_creating_BOM_with:
         start_row_int += 1
         startstart_row_int += 1
-        tag_attrib = 'E' + str(start_row_int)
-        dict_attribs[tag_attrib].dxf.text = name_property
-        start_row_int +=2
-        startstart_row_int +=2
-        list_for_creating_BOM = dict_for_creating_BOM_with[name_property]
-        for equip_dict in list_for_creating_BOM:
-            max_row = add_dict(dict_with_all_info_in_BOM_row=equip_dict, count_row=startstart_row_int)
+        return_dict_attribs[f'E{start_row_int}'] = name_property
+        start_row_int += 2
+        startstart_row_int += 2
 
+        equipment_list = list_for_creating_BOM_with[name_property]
+        for equip_dict in equipment_list:
+            max_row = add_dict(dict_with_all_info_in_BOM_row=equip_dict,
+                               count_row=startstart_row_int)
             for column_name in equip_dict:
-                for name in equip_dict[column_name]:
-                    if column_name in tag_in_BOM_dxf:
-                        tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
-                        if tag_attrib in dict_attribs:
-                            dict_attribs[tag_attrib].dxf.text = name
-                            start_row_int +=1
-                start_row_int = startstart_row_int
+                if 'Цена' != column_name:
+                    for name in equip_dict[column_name]:
+                        if column_name in tag_in_BOM_dxf:
+                            tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
+                            return_dict_attribs[tag_attrib] = name
+                            start_row_int += 1
+                    start_row_int = startstart_row_int
             start_row_int = max_row
             startstart_row_int = max_row
 
-    doc_bom.saveas('C:\\Users\\g.zubkov\\PycharmProjects\\FinalProject\src\\bom_check.dxf')
+    return return_dict_attribs
 
-        # for namename in equip:
-        #     end_row_int = add_dict(equip,start_row_int)
+def modify_dict_for_BOM(dict_all_attribs_for_bom):
+    '''
+    Нужно получить номер листа ключом, значение аттрибуты и их значения,
+    :param dict_all_attribs_for_bom:{'E2': 'Сборочные единицы',
+    'D4': 'ВРПТ.301172.024-021',
+    'E4': 'Оболочка ВП.262512', 'A4': 'А4', 'F4': '1', 'G4': '', 'D5': 'ВРПТ.305311.001-025', 'D6': '', 'D7': '',
+    'E5': 'Кабельный ввод ВЗ-Н25', 'E6': 'для не бронированного', 'E7': 'кабеля, диаметром 12-18мм', 'A5': 'А4',
+    'A6': '', 'A7': '', 'F5': '6', 'F6': '', 'F7': '', 'G5': '', 'G6': '', 'G7': '', 'D8': 'ВРПТ.305311.001-016', 'D9': '', 'D10': '', 'E8': 'Кабельный ввод ВЗ-Н16', 'E9': 'для не бронированного', 'E10': 'кабеля, диаметром 3-8мм', 'A8': 'А4', 'A9': '', 'A10': '', 'F8': '3', 'F9': '', 'F10': '', 'G8': '', 'G9': '', 'G10': '', 'D11': 'ВРПТ.305311.001-012', 'D12': '', 'D13': '', 'E11': 'Кабельный ввод ВЗ-Н12', 'E12': 'для не бронированного', 'E13': 'кабеля, диаметром 2-6мм', 'A11': 'А4', 'A12': '', 'A13': '', 'F11': '2', 'F12': '', 'F13': '', 'G11': '', 'G12': '', 'G13': '', 'D14': 'ВРПТ.305311.001-032', 'D15': '', 'D16': '', 'E14': 'Кабельный ввод ВЗ-Н32', 'E15': 'для не бронированного', 'E16': 'кабеля, диаметром 18-25мм', 'A14': 'А4', 'A15': '', 'A16': '', 'F14': '2', 'F15': '', 'F16': '', 'G14': '', 'G15': '', 'G16': '', 'E18': 'Стандартные изделия', 'D20': '', 'D21': '', 'E20': 'Винт А2.М6-6gx10.019', 'E21': 'ГОСТ 17473-80', 'A20': 'А4', 'A21': '', 'F20': '2', 'F21': '', 'G20': '', 'G21': '', 'D22': '', 'E22': 'Шайба 6 019 ГОСТ 6402-70', 'A22': 'А4', 'F22': '2', 'G22': '', 'D23': '', 'E23': 'Шайба A.6.019 ГОСТ 11371-78', 'A23': 'А4', 'F23': '2', 'G23': '', 'E25': 'Детали', 'D27': 'ВРПТ.745551.005-240', 'E27': 'DIN-рейка NS35х7,5, L=240 мм', 'A27': 'А4', 'F27': '1', 'G27': '', 'E29': 'Прочие изделия', 'D31': 'TU16-2-GY', 'E31': 'Клемма проходная винтовая Iн=76А', 'A31': '', 'F31': '3', 'G31': ''}
+    :return:
+    '''
+
+    return_dict = dict()
+
+    for attrib_name in dict_all_attribs_for_bom:
+        if (int(attrib_name[1:])-29) <= 0:
+            if 1 not in return_dict:
+                return_dict[1] = dict()
+            return_dict[1][attrib_name] = dict_all_attribs_for_bom[attrib_name]
+        else:
+            page_number = ((int(attrib_name[1:]) - 29)//32) + 2
+            if page_number not in return_dict:
+                return_dict[page_number] = dict()
+
+            return_dict[page_number][attrib_name[0] + str(int(attrib_name[1:]) - 29 - (32 * (page_number-2)))] = dict_all_attribs_for_bom[attrib_name]
+
+    return return_dict
+
+
+
+
+
+if __name__ == '__main__':
+
+    a = {'E2': 'Сборочные единицы', 'D4': 'ВРПТ.301172.024-021', 'E4': 'Оболочка ВП.262512', 'A4': 'А4', 'F4': '1', 'G4': '', 'D5': 'ВРПТ.305311.001-025', 'D6': '', 'D7': '', 'E5': 'Кабельный ввод ВЗ-Н25', 'E6': 'для не бронированного', 'E7': 'кабеля, диаметром 12-18мм', 'A5': 'А4', 'A6': '', 'A7': '', 'F5': '6', 'F6': '', 'F7': '', 'G5': '', 'G6': '', 'G7': '', 'D8': 'ВРПТ.305311.001-016', 'D9': '', 'D10': '', 'E8': 'Кабельный ввод ВЗ-Н16', 'E9': 'для не бронированного', 'E10': 'кабеля, диаметром 3-8мм', 'A8': 'А4', 'A9': '', 'A10': '', 'F8': '3', 'F9': '', 'F10': '', 'G8': '', 'G9': '', 'G10': '', 'D11': 'ВРПТ.305311.001-012', 'D12': '', 'D13': '', 'E11': 'Кабельный ввод ВЗ-Н12', 'E12': 'для не бронированного', 'E13': 'кабеля, диаметром 2-6мм', 'A11': 'А4', 'A12': '', 'A13': '', 'F11': '2', 'F12': '', 'F13': '', 'G11': '', 'G12': '', 'G13': '', 'D14': 'ВРПТ.305311.001-032', 'D15': '', 'D16': '', 'E14': 'Кабельный ввод ВЗ-Н32', 'E15': 'для не бронированного', 'E16': 'кабеля, диаметром 18-25мм', 'A14': 'А4', 'A15': '', 'A16': '', 'F14': '2', 'F15': '', 'F16': '', 'G14': '', 'G15': '', 'G16': '', 'E18': 'Стандартные изделия', 'D20': '', 'D21': '', 'E20': 'Винт А2.М6-6gx10.019', 'E21': 'ГОСТ 17473-80', 'A20': 'А4', 'A21': '', 'F20': '2', 'F21': '', 'G20': '', 'G21': '', 'D22': '', 'E22': 'Шайба 6 019 ГОСТ 6402-70', 'A22': 'А4', 'F22': '2', 'G22': '', 'D23': '', 'E23': 'Шайба A.6.019 ГОСТ 11371-78', 'A23': 'А4', 'F23': '2', 'G23': '', 'E25': 'Детали', 'D27': 'ВРПТ.745551.005-240', 'E27': 'DIN-рейка NS35х7,5, L=240 мм', 'A27': 'А4', 'F27': '1', 'G27': '', 'E29': 'Прочие изделия', 'D31': 'TU16-2-GY', 'E31': 'Клемма проходная винтовая Iн=76А', 'A31': '', 'F31': '3', 'G31': '', 'D32': 'TU6-2-PE'}
+    b = modify_dict_for_BOM(a)
+    print(b)
 

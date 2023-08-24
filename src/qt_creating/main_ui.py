@@ -7,7 +7,8 @@ import openpyxl
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
-from src.qt_creating import terminal_ui
+from src.pdf_creator import pdf_main
+from src.qt_creating.terminal_ui import TerminalPage
 from src.dxf_changer import TERMINAL_DB
 from src.dxf_creating import import_module, shell_create, main_shell_create,terminal_create,inputs_create
 from src.dxf_creating import move_inserts
@@ -18,7 +19,7 @@ from src.dxf_creating import cutside_works
 from src.dxf_creating import nameplate
 
 
-class DxfCreator(terminal_ui.TerminalPage):
+class DxfCreator(TerminalPage):
 
     def __init__(self,
                  save_path = None,
@@ -44,7 +45,7 @@ class DxfCreator(terminal_ui.TerminalPage):
         self.previewButton_leftMenu.clicked.connect(self.create_dimension)
         self.previewButton_leftMenu.clicked.connect(self.write_table_border_a3_main)
         self.previewButton_leftMenu.clicked.connect(self.create_nameplate)
-        # self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
+        self.previewButton_leftMenu.clicked.connect(self.save_doc_new)
         self.previewButton_leftMenu.clicked.connect(self.create_BOM)
 
         self.Autohelper.clicked.connect(self.create_BOM)
@@ -487,16 +488,15 @@ class DxfCreator(terminal_ui.TerminalPage):
 
     def create_BOM(self):
         '''Создаем dxf с BOM'''
-        path_to_xlsx = BOM_create.get_path_to_xlsx(main_window_class_instance=self)
+        # path_to_xlsx = BOM_create.get_path_to_xlsx(main_window_class_instance=self)
 
-        tag_in_BOM_dxf = {'Формат': 'A', 'Зона': 'B', 'Поз.': 'C', 'Обозначение': 'D', 'Наименование': 'E', 'Кол.': 'F',
-                          'Примечание': 'G'}
+        path_to_xlsx = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\bd\\BOM\\bom.xlsx'
+
+        # tag_in_BOM_dxf = {'Формат': 'A', 'Зона': 'B', 'Поз.': 'C', 'Обозначение': 'D', 'Наименование': 'E', 'Кол.': 'F',
+        #                   'Примечание': 'G'}
 
         if path_to_xlsx:
             data_base_bom = BOM_create.read_BOM_base(xlsx_base_path=path_to_xlsx)
-            self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=self.path_to_dxf)
-
-            border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
 
             dict_with_block_names_counts = BOM_create.create_dict_with_insert_names(doc=self.doc_new)
 
@@ -515,33 +515,59 @@ class DxfCreator(terminal_ui.TerminalPage):
                         list_for_creating_BOM.append(_dict)
 
             list_for_creating_BOM_with = BOM_create.create_dict_main_properties(list_for_creating_BOM)
-            dict_attribs = {attrib.dxf.tag: attrib for attrib in border_insert_first_page.attribs}
 
-            start_row_int = 1
-            startstart_row_int = 1
-            for name_property in list_for_creating_BOM_with:
-                start_row_int += 1
-                startstart_row_int += 1
-                tag_attrib = 'E' + str(start_row_int)
-                dict_attribs[tag_attrib].dxf.text = name_property
-                start_row_int += 2
-                startstart_row_int += 2
-                list_for_creating_BOM = list_for_creating_BOM_with[name_property]
-                for equip_dict in list_for_creating_BOM:
-                    max_row = BOM_create.add_dict(dict_with_all_info_in_BOM_row=equip_dict, count_row=startstart_row_int)
-                    for column_name in equip_dict:
-                        if 'Цена' != column_name:
-                            for name in equip_dict[column_name]:
-                                if column_name in tag_in_BOM_dxf:
-                                    tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
-                                    if tag_attrib in dict_attribs:
-                                        dict_attribs[tag_attrib].dxf.text = name
-                                        start_row_int += 1
-                            start_row_int = startstart_row_int
-                    start_row_int = max_row
-                    startstart_row_int = max_row
+            dict_all_attribs_for_bom = BOM_create.dict_all_attrib_in_BOM(list_for_creating_BOM_with)
+            last_dict_with_attribs = BOM_create.modify_dict_for_BOM(dict_all_attribs_for_bom)
 
-            self.save_doc_bom()
+            self.doc_bom = BOM_create.create_doc_BOM(dxfbase_path=self.path_to_dxf)
+
+            for i in last_dict_with_attribs:
+                if i == 1:
+                    border_insert_first_page = BOM_create.create_BOM_FIRST(doc_bom=self.doc_bom)
+                    dict_attribs = {attrib.dxf.tag: attrib for attrib in border_insert_first_page.attribs}
+                    dict_attribs['SHEET_FIRST'].dxf.text = str(i)
+                    dict_attribs['SHEET_COUNT'].dxf.text = str(max(list(last_dict_with_attribs.keys())))
+                    dict_attribs['RUDES'].dxf.text = self.designer_name
+                    dict_attribs['RUDESDATA'].dxf.text = f'{self.date_today.split("-")[::-1][1]}.{self.date_today.split("-")[::-1][2]}'
+                    for attribs in last_dict_with_attribs[i]:
+                        dict_attribs[attribs].dxf.text = last_dict_with_attribs[i][attribs]
+                    self.doc_bom.saveas(self.doc_filename_save_dxf[:-3] + f'_3.dxf')
+                    pdf_main.save_pdf(self.doc_filename_save_dxf[:-3] + f'_3.dxf')
+                else:
+                    self.doc_bom.modelspace().delete_all_entities()
+                    border_insert_second_page = BOM_create.create_BOM_SECOND(doc_bom=self.doc_bom)
+                    dict_attribs = {attrib.dxf.tag: attrib for attrib in border_insert_second_page.attribs}
+                    dict_attribs['SHEET_COUNT'].dxf.text = str(i)
+                    for attribs in last_dict_with_attribs[i]:
+                        dict_attribs[attribs].dxf.text = last_dict_with_attribs[i][attribs]
+                    self.doc_bom.saveas(self.doc_filename_save_dxf[:-3] + f'_{2+i}.dxf')
+                    pdf_main.save_pdf(self.doc_filename_save_dxf[:-3] + f'_{2+i}.dxf')
+            #
+            # start_row_int = 1
+            # startstart_row_int = 1
+            # for name_property in list_for_creating_BOM_with:
+            #     start_row_int += 1
+            #     startstart_row_int += 1
+            #     tag_attrib = 'E' + str(start_row_int)
+            #     dict_attribs[tag_attrib].dxf.text = name_property
+            #     start_row_int += 2
+            #     startstart_row_int += 2
+            #     list_for_creating_BOM = list_for_creating_BOM_with[name_property]
+            #     for equip_dict in list_for_creating_BOM:
+            #         max_row = BOM_create.add_dict(dict_with_all_info_in_BOM_row=equip_dict, count_row=startstart_row_int)
+            #         for column_name in equip_dict:
+            #             if 'Цена' != column_name:
+            #                 for name in equip_dict[column_name]:
+            #                     if column_name in tag_in_BOM_dxf:
+            #                         tag_attrib = tag_in_BOM_dxf[column_name] + str(start_row_int)
+            #                         if tag_attrib in dict_attribs:
+            #                             dict_attribs[tag_attrib].dxf.text = name
+            #                             start_row_int += 1
+            #                 start_row_int = startstart_row_int
+            #         start_row_int = max_row
+            #         startstart_row_int = max_row
+            #
+            # self.save_doc_bom()
         else:
             self.error_window.add_error('Не выбран путь для базы цен и оборудования xlsx')
 

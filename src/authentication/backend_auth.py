@@ -22,7 +22,7 @@ class AuthWindow(QtWidgets.QMainWindow, frontend_auth.Ui_WelcomeWindow):
 
         self.setupUi(self)
 
-        self.path_to_bd_xlsx = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\authentication\\database.xlsx'
+        self.path_to_bd_xlsx = '\\'.join(os.getcwd().split('\\')[0:-1]) + '\\FinalProject\\src\\authentication\\database.xlsx'
 
         self.write_username()
 
@@ -93,14 +93,17 @@ class AuthWindow(QtWidgets.QMainWindow, frontend_auth.Ui_WelcomeWindow):
                                             path_to_dxf=path_to_dxf_shell,
                                             path_to_terminal_dxf=path_to_terminal_dxf)
         # self.jb_window = start_ui.Mainver(path_to_terminal_dxf=path_to_terminal_dxf)
-
+        self.jb_window.designer_name = self.return_username()
         self.jb_window.task_number = self.return_task_number()
         self.jb_window.position_number = self.return_position_number()
         self.close()
         self.jb_window.show()
 
-
-
+def run_app():
+    app = QtWidgets.QApplication(sys.argv)
+    authWindow = AuthWindow()
+    authWindow.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

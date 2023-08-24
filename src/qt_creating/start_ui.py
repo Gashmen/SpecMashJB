@@ -110,7 +110,7 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
         '''Заполнение штампов'''
         self.task_number = ''
         self.position_number = ''
-
+        self.designer_name = ''
 
         '''BUTTON FUNCTIONS'''
         self.shellButton_leftMenu.clicked.connect(self.set_shell_page)
@@ -173,15 +173,15 @@ class Mainver(QtWidgets.QMainWindow, designer_ui.Ui_MainWindow):
             if self.save_path is not None:
                 self.doc_new.saveas(self.save_path + '\\box')
             else:
-                doc_filename,_ = QtWidgets.QFileDialog.getSaveFileName(self,
+                self.doc_filename_save_dxf,_ = QtWidgets.QFileDialog.getSaveFileName(self,
                                                                      directory= '\\'.join(os.getcwd().split('\\')[0:-1]),
                                                                      caption="Сохранение dxf файла",
                                                                      filter= 'DXF Files(*.dxf)')
-                if doc_filename:
-                    self.doc_new.saveas(doc_filename[:-3] + '_1.dxf')
-                    self.doc_nameplate.saveas(doc_filename[:-3] + '_2.dxf')
-                    pdf_main.save_pdf(doc_filename[:-3] + '_1.dxf')
-                    pdf_main.save_pdf(doc_filename[:-3] + '_2.dxf')
+                if self.doc_filename_save_dxf:
+                    self.doc_new.saveas(self.doc_filename_save_dxf[:-3] + '_1.dxf')
+                    self.doc_nameplate.saveas(self.doc_filename_save_dxf[:-3] + '_2.dxf')
+                    pdf_main.save_pdf(self.doc_filename_save_dxf[:-3] + '_1.dxf')
+                    pdf_main.save_pdf(self.doc_filename_save_dxf[:-3] + '_2.dxf')
 
 
 
